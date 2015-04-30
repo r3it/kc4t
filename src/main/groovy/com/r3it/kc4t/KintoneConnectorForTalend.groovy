@@ -1,18 +1,21 @@
 package com.r3it.kc4t
 
+
+
+
 /**
  * kintone Connector for Talend
+ * 
+ * @author nishijima
  */
 class KintoneConnectorForTalend {
-  def config
+    def config
 
-  /**
-	 configオブジェクトで初期化
-   */
-  def init(KintoneConnectorConfig config) {
-	this.config = config
-	
-	this.config.jdbcUrl
-  }
-  
+    KintoneConnectorForTalend(KintoneConnectorConfig config) {
+        this.config = config
+    }
+
+    def createJobId(dateTime = new Date()) {
+        return dateTime.format("yyyyMMddHHmmss")
+    }
 }

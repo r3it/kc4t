@@ -1,5 +1,6 @@
 apply plugin: 'groovy'
 apply plugin: 'application'
+apply plugin: 'eclipse'
 
 tasks.withType(GroovyCompile) each { it.groovyOptions.encoding = "UTF-8" }
 
@@ -29,5 +30,8 @@ repositories {
 
 dependencies {
   compile 'org.codehaus.groovy:groovy-all:2.4.3'
+  compile 'com.google.code.gson:gson:2.3.1'
+  compile 'com.h2database:h2:1.4.187'
   testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+  compile fileTree(dir: 'libs', include: '*.jar')
 }
