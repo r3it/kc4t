@@ -110,7 +110,9 @@ class ExportTableSchema {
         }
     }
 
-    def getSchema() {
+    def getSchema(KintoneConnectorConfig config, jobId) {
+        def header = "CREATE TABLE `"+ config.tablePrefix + jobId +"` (\n"
+
         def buf = new StringBuilder()
         this.schema.each {
             if (buf.length() > 0) {
@@ -118,7 +120,24 @@ class ExportTableSchema {
             }
             buf.append(it)
         }
-        return buf.toString()
+
+        def footer = "\n)"
+        return header + buf.toString() + footer
+    }
+
+    def getSubtableSchema(KintoneConnectorConfig config, jobId, name) {
+        def uniqName = config.tablePrefix + jobId +"_"+ name
+        def header = "CREATE TABLE `"+ uniqName +"` (\n"
+
+        def buf = new StringBuilder()
+        buf.append("`"+ uniqName +"_fk` bigint(20) NOT NULL")
+        this.schema.each {
+            buf.append(",\n")
+            buf.append(it)
+        }
+
+        def footer = "\n)"
+        return header + buf.toString() + footer
     }
 
     def getFieldTypes() {
