@@ -74,12 +74,12 @@ class ExportTableSchemaSpec extends Specification {
 
         then:
         schema.getSubTable("users").getSubtableSchema(config, jobId, 'users') ==
-         """|CREATE TABLE `tmpTable_20150430123456_users` (
+                """|CREATE TABLE `tmpTable_20150430123456_users` (
             |`tmpTable_20150430123456_users_fk` bigint(20) NOT NULL,
             |`pref` text
             |)""".stripMargin()
         schema.getSubTable("details").getSubtableSchema(config, jobId, 'details') ==
-         """|CREATE TABLE `tmpTable_20150430123456_details` (
+                """|CREATE TABLE `tmpTable_20150430123456_details` (
             |`tmpTable_20150430123456_details_fk` bigint(20) NOT NULL,
             |`likes` text,
             |`likeType` text
