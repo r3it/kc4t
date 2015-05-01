@@ -125,7 +125,7 @@ class ExportRecordSet {
 
     }
 
-    def getSubTable(name) {
+    def ExportRecordSet getSubTable(name) {
         if (this.current.subTables.containsKey(name)) {
             return this.current.subTables.get(name)
         }
