@@ -12,4 +12,5 @@ class ExportRecord {
 
     def foreignKey = 0l
     def subTables = new HashMap<String, ExportRecordSet>()
+    def subTableColName
 }
