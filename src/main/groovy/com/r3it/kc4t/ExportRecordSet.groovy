@@ -19,10 +19,14 @@ class ExportRecordSet {
     def current = null
     def records = new ArrayList<ExportRecord>()
 
-    def subTables = new HashMap<String, ExportRecordSet>()
-
-    def start() {
+    def next() {
         current = new ExportRecord()
+        records.add(current)
+    }
+
+    def nextSubTableRecord(fk) {
+        current = new ExportRecord()
+        current.foreignKey = fk
         records.add(current)
     }
 
@@ -57,7 +61,7 @@ class ExportRecordSet {
                 currentValues.add(rs.getString(name))
                 break
             case FieldType.MULTI_SELECT:
-                currentValues.add(gson.toJson(rs.getString(name)))
+                currentValues.add(rs.getString(name))
                 break
             case FieldType.FILE:
             // TODO FILE field handling
@@ -72,13 +76,13 @@ class ExportRecordSet {
                 currentValues.add(rs.getDateTime(name).toString(DATETIME_FORMAT))
                 break
             case FieldType.USER_SELECT:
-                currentValues.add(gson.toJson(rs.getString(name)))
+                currentValues.add(rs.getString(name))
                 break
             case FieldType.LINK:
                 currentValues.add(rs.getString(name))
                 break
             case FieldType.CATEGORY:
-                currentValues.add(gson.toJson(rs.getString(name)))
+                currentValues.add(rs.getString(name))
                 break
             case FieldType.STATUS:
                 currentValues.add(rs.getString(name))
@@ -87,23 +91,25 @@ class ExportRecordSet {
                 currentValues.add(rs.getLong(name).toString())
                 break
             case FieldType.CREATOR:
-                currentValues.add(gson.toJson(rs.getString(name)))
+                currentValues.add(rs.getString(name))
                 break
             case FieldType.CREATED_TIME:
                 currentValues.add(rs.getDateTime(name).toString(DATETIME_FORMAT))
                 break
             case FieldType.MODIFIER:
-                currentValues.add(gson.toJson(rs.getString(name)))
+                currentValues.add(rs.getString(name))
                 break
             case FieldType.UPDATED_TIME:
                 currentValues.add(rs.getDateTime(name).toString(DATETIME_FORMAT))
                 break
             case FieldType.STATUS_ASSIGNEE:
-                currentValues.add(gson.toJson(rs.getString(name)))
+                currentValues.add(rs.getString(name))
                 break
             case FieldType.SUBTABLE:
-                if (! subTables.containsKey(name)) {
-                    subTables.put(name, new ExportTableSchema())
+                if (! current.subTables.containsKey(rs.getId() +'_'+ name)) {
+                    def subTable = new ExportRecordSet()
+                    subTable.nextSubTableRecord(rs.getId())
+                    current.subTables.put(rs.getId() +'_'+ name, subTable)
                 }
                 break
             case FieldType.__REVISION__:
@@ -117,5 +123,12 @@ class ExportRecordSet {
                 break
         }
 
+    }
+
+    def getSubTable(name) {
+        if (this.current.subTables.containsKey(name)) {
+            return this.current.subTables.get(name)
+        }
+        return new ExportRecordSet()
     }
 }
