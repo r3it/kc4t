@@ -102,4 +102,28 @@ class KintoneConnectorForTalendSpec extends Specification {
         jobId | query
         '20150507_123456' | ''
     }
+
+    def "exportAllFromKintone"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.jdbcUrl = "jdbc:h2:" + System.getProperty("user.home") + File.separator + 'kc4tdb'
+        config.jdbcDriverClass = 'org.h2.Driver'
+        config.jdbcUser = 'sa'
+        config.jdbcPassword = ''
+
+        config.tablePrefix = 'kc4t_'
+        config.jobStatusReportTable = 'report_'
+        config.saveTmpTable = true
+
+        config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'
+        config.subDomain = 'ehr9p'
+        config.appId = 15l
+
+        expect:
+        def result = con.exportAllFromKintone(config)
+        if (result.exception != null) {
+            result.exception.printStackTrace()
+        }
+        result.success == true
+    }
 }

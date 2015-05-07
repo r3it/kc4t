@@ -8,6 +8,8 @@ package com.r3it.kc4t
  */
 class KintoneConnectorJobResult {
     def success = false
+    def count = 0
+
     def jobId
     def schema
     def exportRecordSet
