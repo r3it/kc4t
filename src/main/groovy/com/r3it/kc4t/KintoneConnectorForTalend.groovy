@@ -31,6 +31,7 @@ class KintoneConnectorForTalend {
     }
 
     def KintoneConnectorJobResult execExportRestClient(KintoneConnectorConfig config, query) {
+        // ページングの追加
         def result = select(createJobId(), config, query)
         if (result.success) {
             // dump to RDB
@@ -115,9 +116,8 @@ class KintoneConnectorForTalend {
         def sql = Sql.newInstance(config.jdbcUrl, config.jdbcUser, config.jdbcPassword, config.jdbcDriverClass)
 
         try {
-            sql.getConnection().setAutoCommit(false)
+            sql.connection.setAutoCommit(false)
             sql.withTransaction {
-                sql.execute('SET AUTOCOMMIT FALSE')
                 // create tables
                 sql.execute(result.schema.getSchema(config, result.jobId))
                 if (result.schema.hasSubtables()) {
@@ -132,23 +132,25 @@ class KintoneConnectorForTalend {
                             result.exportRecordSet.getInsertValues()[i])
                 }
                 if (result.exportRecordSet.hasSubtables()) {
-                    result.exportRecordSet.getSubtableNames().each { subtableName ->
-                        // 各レコードに紐づくsubTableからRecordを取り出す
-                        result.exportRecordSet.getRecords().each { subTblRecord ->
-                            subTblRecord.subTables.each { key, subtable ->
-                                for (def i = 0; i < subtable.getInsertValues().size(); i++) {
-                                    sql.execute(subtable.getInsertSQL(config, result.jobId)[i],
-                                            subtable.getInsertValues()[i])
-                                }
+                    // 各レコードに紐づくsubTableからRecordを取り出す
+                    result.exportRecordSet.getRecords().each { subTblRecord ->
+                        subTblRecord.subTables.each { key, subtable ->
+                            for (def i = 0; i < subtable.getInsertValues().size(); i++) {
+                                sql.execute(subtable.getInsertSQL(config, result.jobId)[i],
+                                        subtable.getInsertValues()[i])
                             }
                         }
-
                     }
                 }
             }
-        } catch (e) {
-            sql.getConnection().rollback()
-            throw e
+        } catch (Throwable t) {
+            def closeSql = Sql.newInstance(config.jdbcUrl, config.jdbcUser, config.jdbcPassword, config.jdbcDriverClass)
+            def mainTableName = result.schema.getTableName(config, result.jobId)
+            closeSql.execute("DROP TABLE "+ mainTableName)
+            result.schema.getSubtableNames().each {
+                closeSql.execute("DROP TABLE "+ mainTableName + "_" + it)
+            }
+            throw t
         }
     }
 }
