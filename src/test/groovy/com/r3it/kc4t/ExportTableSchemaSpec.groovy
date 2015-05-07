@@ -20,6 +20,7 @@ class ExportTableSchemaSpec extends Specification {
         schema.addField(FieldType.NUMBER, 'totalCost') // 型は同じでも名前が違えば追加
 
         then:
+        schema.hasSubtables() == false
         schema.getSchema(config, jobId) == """|CREATE TABLE `tmpTable_20150430123456` (
             |`userName` text,
             |`userNumber` bigint(20) DEFAULT NULL,
@@ -53,6 +54,7 @@ class ExportTableSchemaSpec extends Specification {
         schema.getSubTable("users").addField(FieldType.DROP_DOWN, "pref")
 
         then:
+        schema.hasSubtables() == true
         schema.getSubTable("users").getFieldTypes() == """["DROP_DOWN"]"""
         schema.getSubTable("details").getFieldTypes() == """["CHECK_BOX","RADIO_BUTTON"]"""
         schema.getSubTable("unknown").getFieldTypes() == """[]""" // 存在しないテーブルを取得しても空を返す
@@ -73,6 +75,7 @@ class ExportTableSchemaSpec extends Specification {
         schema.getSubTable("users").addField(FieldType.DROP_DOWN, "pref")
 
         then:
+        schema.hasSubtables() == true
         schema.getSubTable("users").getSubtableSchema(config, jobId, 'users') ==
                 """|CREATE TABLE `tmpTable_20150430123456_users` (
             |`tmpTable_20150430123456_users_fk` bigint(20) NOT NULL,

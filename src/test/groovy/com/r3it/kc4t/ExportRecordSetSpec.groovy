@@ -185,6 +185,7 @@ class ExportRecordSetSpec extends Specification {
 
         child1Rs.next()
         child2Rs.next()
+        exportRecordSet.getSubTable(fk +'_children').nextSubTableRecord(fk, 'children')
         exportRecordSet.getSubTable(fk +'_children').addResultSet(child1Rs, FieldType.SINGLE_LINE_TEXT, 'childName')
         exportRecordSet.getSubTable(fk +'_children').nextSubTableRecord(fk, 'children')
         exportRecordSet.getSubTable(fk +'_children').addResultSet(child2Rs, FieldType.SINGLE_LINE_TEXT, 'childName')
@@ -198,13 +199,14 @@ class ExportRecordSetSpec extends Specification {
         exportRecordSet.getRecords().get(0).colValues.get(0) == fk.toString()
         exportRecordSet.getRecords().get(0).colValues.get(1) == "test taro"
 
-        exportRecordSet.getSubTable(fk +'_children').records.size() == 2
-        exportRecordSet.getSubTable(fk +'_children').records.get(0).foreignKey == fk
-        exportRecordSet.getSubTable(fk +'_children').records.get(0).colNames.get(0) == "childName"
-        exportRecordSet.getSubTable(fk +'_children').records.get(0).colValues.get(0) == "child taro"
-        exportRecordSet.getSubTable(fk +'_children').records.get(1).foreignKey == fk
-        exportRecordSet.getSubTable(fk +'_children').records.get(1).colNames.get(0) == "childName"
-        exportRecordSet.getSubTable(fk +'_children').records.get(1).colValues.get(0) == "child jiro"
+        def subtable1 = exportRecordSet.getRecords().get(0).subTables.get(fk +'_children')
+        subtable1.records.size() == 2
+        subtable1.records.get(0).foreignKey == fk
+        subtable1.records.get(0).colNames.get(0) == "childName"
+        subtable1.records.get(0).colValues.get(0) == "child taro"
+        subtable1.records.get(1).foreignKey == fk
+        subtable1.records.get(1).colNames.get(0) == "childName"
+        subtable1.records.get(1).colValues.get(0) == "child jiro"
     }
 
     def "getInsertSQL-getInsertValues-subtable"() {
@@ -241,9 +243,11 @@ class ExportRecordSetSpec extends Specification {
 
         child1Rs.next()
         child2Rs.next()
+        exportRecordSet.getSubTable(fk +'_children').nextSubTableRecord(fk, 'children')
         exportRecordSet.getSubTable(fk +'_children').addResultSet(child1Rs, FieldType.SINGLE_LINE_TEXT, 'childName')
         exportRecordSet.getSubTable(fk +'_children').nextSubTableRecord(fk, 'children')
         exportRecordSet.getSubTable(fk +'_children').addResultSet(child2Rs, FieldType.SINGLE_LINE_TEXT, 'childName')
+        exportRecordSet.getSubTable(fk +'_children2').nextSubTableRecord(fk, 'children2')
         exportRecordSet.getSubTable(fk +'_children2').addResultSet(child1Rs, FieldType.SINGLE_LINE_TEXT, 'childName')
         exportRecordSet.getSubTable(fk +'_children2').nextSubTableRecord(fk, 'children2')
         exportRecordSet.getSubTable(fk +'_children2').addResultSet(child2Rs, FieldType.SINGLE_LINE_TEXT, 'childName')
@@ -256,22 +260,28 @@ class ExportRecordSetSpec extends Specification {
                 |""".stripMargin()
         ]
 
+        exportRecordSet.getSubTable(fk +'_children').getInsertSQL(config, jobId).size() == 2
+        println exportRecordSet.getSubTable(fk +'_children').getInsertSQL(config, jobId)[0]
+        println exportRecordSet.getSubTable(fk +'_children').getInsertSQL(config, jobId)[1]
+
         exportRecordSet.getSubTable(fk +'_children').getInsertSQL(config, jobId) == [
-            """|INSERT INTO `tmp_131313` (
+            """|INSERT INTO `tmp_131313_children` (
             |`tmp_131313_children_fk`, `childName` ) VALUES (
             |?, ?)
             |""".stripMargin(),
-            """|INSERT INTO `tmp_131313` (
+            """|INSERT INTO `tmp_131313_children` (
             |`tmp_131313_children_fk`, `childName` ) VALUES (
             |?, ?)
             |""".stripMargin()
         ]
+
+        exportRecordSet.getSubTable(fk +'_children2').getInsertSQL(config, jobId).size() == 2
         exportRecordSet.getSubTable(fk +'_children2').getInsertSQL(config, jobId) == [
-            """|INSERT INTO `tmp_131313` (
+            """|INSERT INTO `tmp_131313_children2` (
             |`tmp_131313_children2_fk`, `childName` ) VALUES (
             |?, ?)
             |""".stripMargin(),
-            """|INSERT INTO `tmp_131313` (
+            """|INSERT INTO `tmp_131313_children2` (
             |`tmp_131313_children2_fk`, `childName` ) VALUES (
             |?, ?)
             |""".stripMargin()
@@ -283,13 +293,19 @@ class ExportRecordSetSpec extends Specification {
                 "test taro"]
         ]
 
-        exportRecordSet.getSubTable(fk +'_children').getInsertValues() == [
+        def subtable1 = exportRecordSet.getRecords().get(0).subTables.get(fk +'_children')
+        subtable1.getInsertValues() == [
             ["12345", "child taro"],
-            ["12345", "child jiro"]
+            [
+                "12345",
+                "child jiro"]
         ]
-        exportRecordSet.getSubTable(fk +'_children2').getInsertValues() == [
+        def subtable2 = exportRecordSet.getRecords().get(0).subTables.get(fk +'_children2')
+        subtable2.getInsertValues() == [
             ["12345", "child taro"],
-            ["12345", "child jiro"]
+            [
+                "12345",
+                "child jiro"]
         ]
     }
 }

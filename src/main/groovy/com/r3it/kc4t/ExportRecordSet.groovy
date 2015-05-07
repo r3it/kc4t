@@ -3,6 +3,8 @@ package com.r3it.kc4t
 import com.cybozu.kintone.database.FieldType
 import com.cybozu.kintone.database.ResultSet
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+
 
 
 /**
@@ -14,7 +16,7 @@ import com.google.gson.Gson
 class ExportRecordSet {
     def DATE_FORMAT = "yyyy-MM-dd"
     def TIME_FORMAT = "HH:mm"
-    def DATETIME_FORMAT = "yyyy-MM-ddTHH:mm:ssZ"
+    def DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 
     def config, jobId
     def current = null
@@ -72,15 +74,17 @@ class ExportRecordSet {
                 break
             case FieldType.FILE:
             // TODO FILE field handling
+                current.getColNames().remove(current.getColNames().size() - 1)
+
                 break
             case FieldType.DATE:
-                currentValues.add(rs.getDate(name).toString(DATE_FORMAT))
+                currentValues.add(new Date(rs.getDate(name).getTime()).format(DATE_FORMAT))
                 break
             case FieldType.TIME:
-                currentValues.add(rs.getDateTime(name).toString(TIME_FORMAT))
+                currentValues.add(rs.getString(name) + ':00')
                 break
             case FieldType.DATETIME:
-                currentValues.add(rs.getDateTime(name).toString(DATETIME_FORMAT))
+                currentValues.add(new Date(rs.getDateTime(name).getTime()).format(DATETIME_FORMAT))
                 break
             case FieldType.USER_SELECT:
                 currentValues.add(rs.getString(name))
@@ -98,16 +102,17 @@ class ExportRecordSet {
                 currentValues.add(rs.getLong(name).toString())
                 break
             case FieldType.CREATOR:
-                currentValues.add(rs.getString(name))
+            case FieldType.MODIFIER:
+                JsonObject userJson = new JsonObject();
+                userJson.addProperty("code", rs.getUser(name).getCode());
+                userJson.addProperty("name", rs.getUser(name).getName());
+                currentValues.add(gson.toJson(userJson))
                 break
             case FieldType.CREATED_TIME:
-                currentValues.add(rs.getDateTime(name).toString(DATETIME_FORMAT))
-                break
-            case FieldType.MODIFIER:
-                currentValues.add(rs.getString(name))
+                currentValues.add(new Date(rs.getDateTime(name).getTime()).format(DATETIME_FORMAT))
                 break
             case FieldType.UPDATED_TIME:
-                currentValues.add(rs.getDateTime(name).toString(DATETIME_FORMAT))
+                currentValues.add(new Date(rs.getDateTime(name).getTime()).format(DATETIME_FORMAT))
                 break
             case FieldType.STATUS_ASSIGNEE:
                 currentValues.add(rs.getString(name))
@@ -116,7 +121,6 @@ class ExportRecordSet {
                 current.getColNames().remove(current.getColNames().size() - 1)
                 if (! current.subTables.containsKey(rs.getId() +'_'+ name)) {
                     def subTable = new ExportRecordSet(this.config, this.jobId)
-                    subTable.nextSubTableRecord(rs.getId(), name)
                     current.subTables.put(rs.getId() +'_'+ name, subTable)
                 }
                 break
@@ -142,6 +146,7 @@ class ExportRecordSet {
 
             if (current.foreignKey > 0) {
                 def uniqName = this.config.tablePrefix + this.jobId +"_"+ current.subTableColName
+                insertPrefix = "INSERT INTO `"+ uniqName +"` (\n"
                 names.append("`"+ uniqName +"_fk`")
             }
             record.colNames.each { colName ->
@@ -187,10 +192,18 @@ class ExportRecordSet {
 
     }
 
+    def hasSubtables() {
+        return this.current.subTables.size() > 0
+    }
+
+    def getSubtableNames() {
+        return this.current.subTables.keySet().toArray()
+    }
+
     def ExportRecordSet getSubTable(name) {
         if (this.current.subTables.containsKey(name)) {
             return this.current.subTables.get(name)
         }
-        return new ExportRecordSet()
+        throw new IllegalArgumentException("subTable $name is not found.")
     }
 }
