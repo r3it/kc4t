@@ -110,8 +110,13 @@ class ExportTableSchema {
         }
     }
 
+
+    def getTableName(KintoneConnectorConfig config, jobId) {
+        return config.tablePrefix + jobId
+    }
+
     def getSchema(KintoneConnectorConfig config, jobId) {
-        def header = "CREATE TABLE `"+ config.tablePrefix + jobId +"` (\n"
+        def header = "CREATE TABLE `"+ getTableName(config, jobId) +"` (\n"
 
         def buf = new StringBuilder()
         this.schema.each {
@@ -123,6 +128,14 @@ class ExportTableSchema {
 
         def footer = "\n)"
         return header + buf.toString() + footer
+    }
+
+    def hasSubtables() {
+        return this.subTables.size() > 0
+    }
+
+    def getSubtableNames() {
+        return this.subTables.keySet().toArray()
     }
 
     def getSubtableSchema(KintoneConnectorConfig config, jobId, name) {

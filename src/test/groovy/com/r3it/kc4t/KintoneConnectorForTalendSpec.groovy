@@ -5,22 +5,9 @@ import spock.lang.*
 class KintoneConnectorForTalendSpec extends Specification {
     def config = new KintoneConnectorConfig()
 
-    def "JDBCのURLが正しくセットされたか？"() {
+    def "createJobJd"() {
         setup:
-        config.jdbcUrl = jdbcUrl
-
-        expect:
-        def con = new KintoneConnectorForTalend(config)
-        con.config.jdbcUrl == result
-
-        where:
-        jdbcUrl | result
-        'jdbc://foobar/val?a=b' | 'jdbc://foobar/val?a=b'
-    }
-
-    def "createJobJdテスト"() {
-        setup:
-        def con = new KintoneConnectorForTalend(config)
+        def con = new KintoneConnectorForTalend()
 
         expect:
         con.createJobId(date) == result
@@ -28,5 +15,91 @@ class KintoneConnectorForTalendSpec extends Specification {
         where:
         date | result
         new Date("2015/05/01 12:34:56") | "20150501123456"
+    }
+
+    def "select"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.jdbcUrl = "jdbc:h2:" + System.getProperty("user.home") + File.separator + 'kc4tdb'
+        config.jdbcDriverClass = 'org.h2.Driver'
+        config.jdbcUser = 'sa'
+        config.jdbcPassword = ''
+
+        config.tablePrefix = 'kc4t_'
+        config.jobStatusReportTable = 'report_'
+        config.saveTmpTable = true
+
+        config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'
+        config.subDomain = 'ehr9p'
+        config.appId = 15l
+        config.useRevision = true
+
+        expect:
+        def result = con.select(jobId, config, query)
+        if (result.exception) {
+            result.exception.printStackTrace()
+        }
+        result.success == true
+
+        println result.schema.getSchema(config, jobId)
+        result.schema.getSchema(config, jobId) == """|CREATE TABLE `kc4t_20150507_123456` (
+        |`\$revision` bigint(20) DEFAULT NULL,
+        |`\$id` bigint(20) DEFAULT NULL,
+        |`total` text,
+        |`レコード番号` bigint(20) DEFAULT NULL,
+        |`entryDate` date DEFAULT NULL,
+        |`更新者` text,
+        |`作成者` text,
+        |`更新日時` datetime DEFAULT NULL,
+        |`作成日時` datetime DEFAULT NULL
+        |)""".stripMargin()
+
+        println result.schema.hasSubtables()
+        if (result.schema.hasSubtables()) {
+
+            result.schema.getSubtableNames().each {
+                println result.schema.getSubTable(it).getSubtableSchema(config, jobId, it)
+                result.schema.getSubTable(it).getSubtableSchema(config, jobId, it) ==
+                        """|CREATE TABLE `kc4t_20150507_123456_Table` (
+                |`kc4t_20150507_123456_Table_fk` bigint(20) NOT NULL,
+                |`備考` text,
+                |`時刻` time DEFAULT NULL,
+                |`price` bigint(20) DEFAULT NULL,
+                |`食べたもの` text
+                |)"""
+            }
+        }
+
+        where:
+        jobId | query
+        '20150507_123456' | ''
+    }
+
+    def "execExportRestClient"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.jdbcUrl = "jdbc:h2:" + System.getProperty("user.home") + File.separator + 'kc4tdb'
+        config.jdbcDriverClass = 'org.h2.Driver'
+        config.jdbcUser = 'sa'
+        config.jdbcPassword = ''
+
+        config.tablePrefix = 'kc4t_'
+        config.jobStatusReportTable = 'report_'
+        config.saveTmpTable = true
+
+        config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'
+        config.subDomain = 'ehr9p'
+        config.appId = 15l
+
+        expect:
+        def result = con.execExportRestClient(config, query)
+        if (result.exception) {
+            result.exception.printStackTrace()
+        }
+        result.success == true
+
+        where:
+        jobId | query
+        '20150507_123456' | ''
     }
 }
