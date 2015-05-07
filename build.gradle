@@ -35,3 +35,13 @@ dependencies {
   testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
   compile fileTree(dir: 'libs', include: '*.jar')
 }
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+version = '1.0'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'kintone Connector for Talend core',
+                   'Implementation-Version': version
+    }
+}
