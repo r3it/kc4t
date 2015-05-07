@@ -30,8 +30,33 @@ class KintoneConnectorForTalend {
         // TODO 結果をレポートDBに保存
     }
 
+    def KintoneConnectorJobResult exportAllFromKintone(KintoneConnectorConfig config) {
+        def offset = 0
+        def query = "order by レコード番号 asc limit 100 offset 0"
+
+        try {
+            def result = select(createJobId(), config, query)
+            while (result.count > 0) {
+                dumpToTable(config, result)
+
+                offset += result.count
+                query = "order by レコード番号 asc limit 100 offset $offset"
+                result = select(createJobId(), config, query)
+            }
+            return result
+        } catch (Throwable t) {
+            def result = new KintoneConnectorJobResult()
+            result.success = false
+            result.exception = t
+
+            // TODO 結果をレポートDBに保存
+
+            return result
+        }
+    }
+
     def KintoneConnectorJobResult execExportRestClient(KintoneConnectorConfig config, query) {
-        // ページングの追加
+        // TODO ページングの追加
         def result = select(createJobId(), config, query)
         if (result.success) {
             // dump to RDB
@@ -53,11 +78,13 @@ class KintoneConnectorForTalend {
         def schema = new ExportTableSchema()
         def exportRecordSet = new ExportRecordSet(config, jobId)
 
+        def count = 0
         Connection db = null;
         try {
             db = new Connection(config.subDomain, config.apiToken);
             ResultSet rs = db.select(config.appId, query, null);
             while (rs.next()) {
+                count++
                 exportRecordSet.next()
 
                 if (config.useRevision) {
@@ -107,6 +134,7 @@ class KintoneConnectorForTalend {
             if (db != null) {
                 db.close()
             }
+            result.count = count
         }
 
         return result
