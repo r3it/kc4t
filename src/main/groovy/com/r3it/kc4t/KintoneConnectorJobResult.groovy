@@ -7,6 +7,9 @@ package com.r3it.kc4t
  *
  */
 class KintoneConnectorJobResult {
+    def startTime
+    def endTime
+
     def success = false
     def count = 0
 
