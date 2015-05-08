@@ -42,7 +42,7 @@ class KintoneConnectorForTalendSpec extends Specification {
         result.success == true
 
         println result.schema.getSchema(config, jobId)
-        result.schema.getSchema(config, jobId) == """|CREATE TABLE `kc4t_20150507_123456` (
+        result.schema.getSchema(config, jobId) == """|CREATE TABLE IF NOT EXISTS `kc4t_20150507_123456` (
         |`\$revision` bigint(20) DEFAULT NULL,
         |`\$id` bigint(20) DEFAULT NULL,
         |`total` text,
@@ -60,7 +60,7 @@ class KintoneConnectorForTalendSpec extends Specification {
             result.schema.getSubtableNames().each {
                 println result.schema.getSubTable(it).getSubtableSchema(config, jobId, it)
                 result.schema.getSubTable(it).getSubtableSchema(config, jobId, it) ==
-                        """|CREATE TABLE `kc4t_20150507_123456_Table` (
+                        """|CREATE TABLE IF NOT EXISTS `kc4t_20150507_123456_Table` (
                 |`kc4t_20150507_123456_Table_fk` bigint(20) NOT NULL,
                 |`備考` text,
                 |`時刻` time DEFAULT NULL,
@@ -114,25 +114,25 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.jdbcPassword = ''
 
         // devアカウント
-        //        config.tablePrefix = 'kc4t_'
-        //        config.jobStatusReportTableName = 'kc4t_export_jobreport'
-        //        config.saveTmpTable = true
-        //
-        //        config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'
-        //        config.subDomain = 'ehr9p'
-        //        config.appId = 15l
+        config.tablePrefix = 'kc4t_'
+        config.jobStatusReportTableName = 'kc4t_export_jobreport'
+        config.saveTmpTable = true
+
+        config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'
+        config.subDomain = 'ehr9p'
+        config.appId = 15l
 
         // ゲストスペースの「案件」アプリ（3万件データが入ってるやつ）
-        config.tablePrefix = 'anken_'
-        config.jobStatusReportTableName = 'anken_export_jobreport'
-        config.saveTmpTable = true
-        config.useRevision = false
-
-        config.apiToken = 'duXfacz05iWc2sTnzghp1twszsTPML4Ek2kYS1aE'
-        config.subDomain = 'r3it'
-        config.appId = 139l
-        config.guestSpaceId = 9l
-        config.orderByField = "project_id"
+        //        config.tablePrefix = 'anken_'
+        //        config.jobStatusReportTableName = 'anken_export_jobreport'
+        //        config.saveTmpTable = true
+        //        config.useRevision = false
+        //
+        //        config.apiToken = 'duXfacz05iWc2sTnzghp1twszsTPML4Ek2kYS1aE'
+        //        config.subDomain = 'r3it'
+        //        config.appId = 139l
+        //        config.guestSpaceId = 9l
+        //        config.orderByField = "project_id"
 
         expect:
         def result = con.exportAllFromKintone(config)
