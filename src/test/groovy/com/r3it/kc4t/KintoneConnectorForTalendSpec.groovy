@@ -26,7 +26,7 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.jdbcPassword = ''
 
         config.tablePrefix = 'kc4t_'
-        config.jobStatusReportTable = 'report_'
+        config.jobStatusReportTableName = 'report_'
         config.saveTmpTable = true
 
         config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'
@@ -84,7 +84,7 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.jdbcPassword = ''
 
         config.tablePrefix = 'kc4t_'
-        config.jobStatusReportTable = 'report_'
+        config.jobStatusReportTableName = 'report_'
         config.saveTmpTable = true
 
         config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'
@@ -97,6 +97,8 @@ class KintoneConnectorForTalendSpec extends Specification {
             result.exception.printStackTrace()
         }
         result.success == true
+
+        Thread.sleep(1 * 1000)
 
         where:
         jobId | query
@@ -112,7 +114,7 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.jdbcPassword = ''
 
         config.tablePrefix = 'kc4t_'
-        config.jobStatusReportTable = 'report_'
+        config.jobStatusReportTableName = 'kc4t_export_jobreport'
         config.saveTmpTable = true
 
         config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'

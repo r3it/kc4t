@@ -7,7 +7,7 @@ class KintoneConnectorConfig {
     def jdbcPassword
 
     def tablePrefix
-    def jobStatusReportTable
+    def jobStatusReportTableName
     def saveTmpTable = true
 
     def apiToken
