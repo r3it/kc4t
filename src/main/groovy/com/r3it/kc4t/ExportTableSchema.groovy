@@ -116,7 +116,7 @@ class ExportTableSchema {
     }
 
     def getSchema(KintoneConnectorConfig config, jobId) {
-        def header = "CREATE TABLE `"+ getTableName(config, jobId) +"` (\n"
+        def header = "CREATE TABLE IF NOT EXISTS `"+ getTableName(config, jobId) +"` (\n"
 
         def buf = new StringBuilder()
         this.schema.each {
@@ -140,7 +140,7 @@ class ExportTableSchema {
 
     def getSubtableSchema(KintoneConnectorConfig config, jobId, name) {
         def uniqName = config.tablePrefix + jobId +"_"+ name
-        def header = "CREATE TABLE `"+ uniqName +"` (\n"
+        def header = "CREATE TABLE IF NOT EXISTS `"+ uniqName +"` (\n"
 
         def buf = new StringBuilder()
         buf.append("`"+ uniqName +"_fk` bigint(20) NOT NULL")

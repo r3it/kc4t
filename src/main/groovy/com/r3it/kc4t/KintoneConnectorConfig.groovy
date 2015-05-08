@@ -13,5 +13,7 @@ class KintoneConnectorConfig {
     def apiToken
     def subDomain
     def Long appId
+    def Long guestSpaceId
+    def orderByField = 'レコード番号'
     def useRevision = true
 }

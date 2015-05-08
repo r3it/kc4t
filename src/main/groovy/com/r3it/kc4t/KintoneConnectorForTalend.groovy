@@ -41,7 +41,7 @@ class KintoneConnectorForTalend {
     def KintoneConnectorJobResult exportAllFromKintone(KintoneConnectorConfig config) {
         def startTime = new Date()
         def offset = 0
-        def query = "order by レコード番号 asc limit 100 offset 0"
+        def query = " order by $config.orderByField asc limit 100 offset 0"
         def totalCount = 0
 
         try {
@@ -53,7 +53,7 @@ class KintoneConnectorForTalend {
                 dumpToTable(config, result)
 
                 offset += result.count
-                query = "order by レコード番号 asc limit 100 offset $offset"
+                query = " order by $config.orderByField asc limit 100 offset $offset"
                 def offsetResult = select(createJobId(), config, query)
                 doLoop = offsetResult.count > 0
             }
@@ -99,6 +99,9 @@ class KintoneConnectorForTalend {
         Connection db = null;
         try {
             db = new Connection(config.subDomain, config.apiToken);
+            if (config.guestSpaceId > 0) {
+                db.setGuestSpaceId(config.guestSpaceId)
+            }
             ResultSet rs = db.select(config.appId, query, null);
             while (rs.next()) {
                 count++
