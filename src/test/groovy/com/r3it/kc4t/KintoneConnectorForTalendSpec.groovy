@@ -114,13 +114,13 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.jdbcPassword = ''
 
         // devアカウント
-        config.tablePrefix = 'kc4t_'
-        config.jobStatusReportTableName = 'kc4t_export_jobreport'
-        config.saveTmpTable = true
-
-        config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'
-        config.subDomain = 'ehr9p'
-        config.appId = 15l
+        //        config.tablePrefix = 'kc4t_'
+        //        config.jobStatusReportTableName = 'kc4t_export_jobreport'
+        //        config.saveTmpTable = true
+        //
+        //        config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'
+        //        config.subDomain = 'ehr9p'
+        //        config.appId = 15l
 
         // ゲストスペースの「案件」アプリ（3万件データが入ってるやつ）
         //        config.tablePrefix = 'anken_'
@@ -133,6 +133,16 @@ class KintoneConnectorForTalendSpec extends Specification {
         //        config.appId = 139l
         //        config.guestSpaceId = 9l
         //        config.orderByField = "project_id"
+
+        // サブテーブルが多くあるパターン
+        config.tablePrefix = 'sbtbl_test_'
+        config.jobStatusReportTableName = 'sbtbl_test_jobreport'
+        config.saveTmpTable = true
+
+        config.apiToken = 'jM3taudfyhnXsbU3deU2URV5uudPLSDo1OSRT6Ob'
+        config.subDomain = 'r3it'
+        config.appId = 176l
+
 
         expect:
         def result = con.exportAllFromKintone(config)

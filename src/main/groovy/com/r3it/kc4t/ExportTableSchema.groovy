@@ -27,7 +27,7 @@ class ExportTableSchema {
                     schema.add("`"+ name +"` text")
                     break
                 case FieldType.NUMBER:
-                    schema.add("`"+ name +"` bigint(20) DEFAULT NULL")
+                    schema.add("`"+ name +"` double DEFAULT NULL")
                     break
                 case FieldType.CALC:
                     schema.add("`"+ name +"` text")
