@@ -14,18 +14,18 @@ class ExportTableSchemaSpec extends Specification {
 
         when:
         schema.addField(FieldType.SINGLE_LINE_TEXT, 'userName')
-        schema.addField(FieldType.NUMBER, 'userNumber')
+        schema.addField(FieldType.NUMBER, 'fooRate')
         schema.addField(FieldType.DATETIME, 'createDate')
-        schema.addField(FieldType.NUMBER, 'userNumber') // 同じカラムは追加されない
+        schema.addField(FieldType.NUMBER, 'fooRate') // 同じカラムは追加されない
         schema.addField(FieldType.NUMBER, 'totalCost') // 型は同じでも名前が違えば追加
 
         then:
         schema.hasSubtables() == false
         schema.getSchema(config, jobId) == """|CREATE TABLE IF NOT EXISTS `tmpTable_20150430123456` (
             |`userName` text,
-            |`userNumber` bigint(20) DEFAULT NULL,
+            |`fooRate` double DEFAULT NULL,
             |`createDate` datetime DEFAULT NULL,
-            |`totalCost` bigint(20) DEFAULT NULL
+            |`totalCost` double DEFAULT NULL
             |)""".stripMargin()
     }
 
