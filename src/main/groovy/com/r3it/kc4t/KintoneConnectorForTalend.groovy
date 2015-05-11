@@ -110,9 +110,9 @@ class KintoneConnectorForTalend {
                 if (config.useRevision) {
                     schema.addField(FieldType.__REVISION__, '$revision')
                     exportRecordSet.addResultSet(rs, FieldType.__REVISION__, '$revision')
-                    schema.addField(FieldType.__ID__, '$id')
-                    exportRecordSet.addResultSet(rs, FieldType.__ID__, '$id')
                 }
+                schema.addField(FieldType.__ID__, '$id')
+                exportRecordSet.addResultSet(rs, FieldType.__ID__, '$id')
 
                 Set<String> fieldNames = rs.getFieldNames();
                 for (String name : fieldNames) {
@@ -130,6 +130,14 @@ class KintoneConnectorForTalend {
                                 subRs.add(record)
                                 subRs.next()
                                 subtable.nextSubTableRecord(rs.getId(), name)
+
+                                // revision always return -1. why?
+                                //                                if (config.useRevision) {
+                                //                                    subtableSchema.addField(FieldType.__REVISION__, '$revision')
+                                //                                    subtable.addResultSet(subRs, FieldType.__REVISION__, '$revision')
+                                //                                }
+                                subtableSchema.addField(FieldType.__ID__, '$id')
+                                subtable.addResultSet(subRs, FieldType.__ID__, '$id')
 
                                 Set<String> recFields = record.getFieldNames()
                                 for (String recFieldName : recFields) {
@@ -149,6 +157,7 @@ class KintoneConnectorForTalend {
             result.exportRecordSet = exportRecordSet
             result.success = true
         } catch (Throwable t) {
+            t.printStackTrace()
             result.exception = t
         } finally {
             if (db != null) {

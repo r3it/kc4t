@@ -49,7 +49,7 @@ class ExportRecordSet {
                 currentValues.add(rs.getString(name))
                 break
             case FieldType.NUMBER:
-                currentValues.add(rs.getLong(name).toString())
+                currentValues.add(rs.getString(name))
                 break
             case FieldType.CALC:
                 currentValues.add(rs.getString(name))
