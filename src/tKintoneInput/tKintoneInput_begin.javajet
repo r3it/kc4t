@@ -26,7 +26,6 @@ String jobStatusReportTableName = ElementParameterParser.getValue(node, "__REPOR
 String apiToken = ElementParameterParser.getValue(node, "__APITOKEN__");
 String subDomain = ElementParameterParser.getValue(node, "__SUBDOMAIN__");
 long appId = Long.parseLong(ElementParameterParser.getValue(node, "__APPID__"));
-String query = ElementParameterParser.getValue(node, "__QUERY__");
 
 String guestSpace = ElementParameterParser.getValue(node, "__GUEST_SPACEID__");
 long guestSpaceId = 0;
@@ -61,11 +60,3 @@ if ("false".equals(useRevisionFlag)) {
   config_<%=cid %>.setOrderByField(<%= orderByField %>);
 <% } %>
   config_<%=cid %>.setUseRevision(<%= useRevision %>);
-
-
-  com.r3it.kc4t.KintoneConnectorForTalend con_<%=cid %> = new com.r3it.kc4t.KintoneConnectorForTalend();
-<% if (query.length() > 0) { %>
-  com.r3it.kc4t.KintoneConnectorJobResult result_<%=cid %> = con_<%=cid %>.exportFromKintone(config_<%=cid %>, <%= query %>);
-<% } else { %>
-  com.r3it.kc4t.KintoneConnectorJobResult result_<%=cid %> = con_<%=cid %>.exportAllFromKintone(config_<%=cid %>);
-<% } %>
