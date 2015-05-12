@@ -21,6 +21,7 @@ This is kintone and RDBMS data export/import component for Talend.
 * automatic schema creation 
 * export to temporary tabel(s)
 * job status logging
+* TODO GET single record by recordID
 
 ### Configurations
 
