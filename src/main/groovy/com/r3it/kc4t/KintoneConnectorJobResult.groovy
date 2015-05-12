@@ -13,11 +13,11 @@ class KintoneConnectorJobResult {
     def success = false
     def count = 0
 
-    def jobId
+    def String jobId
     def schema
     def exportRecordSet
     def Throwable exception
 
-    def mainTableName
-    def subTableNames
+    def String mainTableName
+    def String subTableNames
 }
