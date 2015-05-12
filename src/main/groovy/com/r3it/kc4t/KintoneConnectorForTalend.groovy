@@ -176,11 +176,15 @@ class KintoneConnectorForTalend {
             sql.connection.setAutoCommit(false)
             sql.withTransaction {
                 // create tables
+                result.mainTableName = result.schema.getTableName(config, result.jobId)
                 sql.execute(result.schema.getSchema(config, result.jobId))
                 if (result.schema.hasSubtables()) {
+                    def subTableNames = []
                     result.schema.getSubtableNames().each {
+                        subTableNames << result.mainTableName +'_'+ it
                         sql.execute(result.schema.getSubTable(it).getSubtableSchema(config, result.jobId, it))
                     }
+                    result.subTableNames = subTableNames.join(',')
                 }
 
                 // insert

@@ -17,4 +17,7 @@ class KintoneConnectorJobResult {
     def schema
     def exportRecordSet
     def Throwable exception
+
+    def mainTableName
+    def subTableNames
 }
