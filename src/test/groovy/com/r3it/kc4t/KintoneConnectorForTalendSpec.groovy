@@ -151,4 +151,31 @@ class KintoneConnectorForTalendSpec extends Specification {
         }
         result.success == true
     }
+
+    def "ToMySQLexportAllFromKintone"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.jdbcUrl = 'jdbc:mysql://localhost/kc4t'
+        config.jdbcDriverClass = 'com.mysql.jdbc.Driver'
+        config.jdbcUser = 'kc4t'
+        config.jdbcPassword = 'kc4t'
+
+        // サブテーブルが多くあるパターン
+        config.tablePrefix = 'sbtbl_test_'
+        config.jobStatusReportTableName = 'sbtbl_test_jobreport'
+        config.saveTmpTable = true
+
+        config.apiToken = 'jM3taudfyhnXsbU3deU2URV5uudPLSDo1OSRT6Ob'
+        config.subDomain = 'r3it'
+        config.appId = 176l
+
+
+        expect:
+        def result = con.exportAllFromKintone(config)
+        if (result.exception != null) {
+            result.exception.printStackTrace()
+        }
+        result.success == true
+    }
+
 }

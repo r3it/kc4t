@@ -16,7 +16,7 @@ import com.google.gson.JsonObject
 class ExportRecordSet {
     def DATE_FORMAT = "yyyy-MM-dd"
     def TIME_FORMAT = "HH:mm"
-    def DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+    def DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss"
 
     def config, jobId
     def current = null
