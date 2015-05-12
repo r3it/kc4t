@@ -1,0 +1,71 @@
+<%@ jet
+ imports="
+  org.talend.core.model.process.INode
+  org.talend.core.model.process.ElementParameterParser
+  org.talend.core.model.metadata.IMetadataTable 
+  org.talend.core.model.metadata.IMetadataColumn 
+  org.talend.core.model.process.IConnection
+  org.talend.core.model.process.IConnectionCategory
+  org.talend.designer.codegen.config.CodeGeneratorArgument
+  org.talend.core.model.metadata.types.JavaTypesManager
+  org.talend.core.model.metadata.types.JavaType
+ "
+%>
+<%
+CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+INode node = (INode)codeGenArgument.getArgument();
+String cid = node.getUniqueName();
+String url = ElementParameterParser.getValue(node, "__URL__");
+String driverClass = ElementParameterParser.getValue(node, "__DRIVER_CLASS__");
+String user = ElementParameterParser.getValue(node, "__USER__");
+String pass = ElementParameterParser.getValue(node, "__PASS__");
+
+String tablePrefix = ElementParameterParser.getValue(node, "__TABLE_PREFIX__");
+String jobStatusReportTableName = ElementParameterParser.getValue(node, "__REPORT_TABLE__");
+
+String apiToken = ElementParameterParser.getValue(node, "__APITOKEN__");
+String subDomain = ElementParameterParser.getValue(node, "__SUBDOMAIN__");
+long appId = Long.parseLong(ElementParameterParser.getValue(node, "__APPID__"));
+String query = ElementParameterParser.getValue(node, "__QUERY__");
+
+String guestSpace = ElementParameterParser.getValue(node, "__GUEST_SPACEID__");
+long guestSpaceId = 0;
+if (guestSpace.length() > 0) {
+    guestSpaceId = Long.parseLong(guestSpace);
+}
+
+String orderByField = ElementParameterParser.getValue(node, "__ORDER_BY_FIELD__");
+boolean useRevision = true;
+String useRevisionFlag = ElementParameterParser.getValue(node, "__USE_REVISION__");
+if ("false".equals(useRevisionFlag)) {
+    useRevision = false;
+}
+
+%> 
+  com.r3it.kc4t.KintoneConnectorConfig config_<%=cid %> = new com.r3it.kc4t.KintoneConnectorConfig();
+  config_<%=cid %>.setJdbcUrl(<%= url %>);
+  config_<%=cid %>.setJdbcDriverClass(<%= driverClass %>);
+  config_<%=cid %>.setJdbcUser(<%= user %>);
+  config_<%=cid %>.setJdbcPassword(<%= pass %>);
+
+  config_<%=cid %>.setTablePrefix(<%= tablePrefix %>);
+  config_<%=cid %>.setJobStatusReportTableName(<%= jobStatusReportTableName %>);
+  config_<%=cid %>.setApiToken(<%= apiToken %>);
+  config_<%=cid %>.setSubDomain(<%= subDomain %>);
+  config_<%=cid %>.setAppId(<%= appId %>l);
+  
+<% if (guestSpaceId > 0) { %>
+  config_<%=cid %>.setGuestSpaceId(<%= guestSpaceId %>);
+<% } %>
+<% if (orderByField.length() > 2) { %>
+  config_<%=cid %>.setOrderByField(<%= orderByField %>);
+<% } %>
+  config_<%=cid %>.setUseRevision(<%= useRevision %>);
+
+
+  com.r3it.kc4t.KintoneConnectorForTalend con_<%=cid %> = new com.r3it.kc4t.KintoneConnectorForTalend();
+<% if (query.length() > 0) { %>
+  com.r3it.kc4t.KintoneConnectorJobResult result_<%=cid %> = con_<%=cid %>.exportFromKintone(config_<%=cid %>, <%= query %>);
+<% } else { %>
+  com.r3it.kc4t.KintoneConnectorJobResult result_<%=cid %> = con_<%=cid %>.exportAllFromKintone(config_<%=cid %>);
+<% } %>
