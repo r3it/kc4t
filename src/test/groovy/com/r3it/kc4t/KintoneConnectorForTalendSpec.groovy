@@ -176,6 +176,11 @@ class KintoneConnectorForTalendSpec extends Specification {
             result.exception.printStackTrace()
         }
         result.success == true
+        result.mainTableName == 'sbtbl_test_' + result.jobId
+        result.subTableNames == result.mainTableName + '_item_table_deploy,'+
+                result.mainTableName + '_item_table_develop,'+
+                result.mainTableName + '_item_table_test,'+
+                result.mainTableName + '_item_table_design'
     }
 
 }
