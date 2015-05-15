@@ -183,4 +183,36 @@ class KintoneConnectorForTalendSpec extends Specification {
                 result.mainTableName + '_item_table_design'
     }
 
+    def "exportFromKintone"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.jdbcUrl = "jdbc:h2:" + System.getProperty("user.home") + File.separator + 'kc4tdb'
+        config.jdbcDriverClass = 'org.h2.Driver'
+        config.jdbcUser = 'sa'
+        config.jdbcPassword = ''
+
+        config.tablePrefix = 'dkc4t_'
+        config.jobStatusReportTableName = 'dreport_'
+        config.saveTmpTable = true
+
+        config.apiToken = '8LYW56ZWhc7gPneAmJTwUuCneyrTQOrGtxbD8N06'
+        config.subDomain = 'ehr9p'
+        config.appId = 15l
+        //        config.apiToken = 'jM3taudfyhnXsbU3deU2URV5uudPLSDo1OSRT6Ob'
+        //        config.subDomain = 'r3it'
+        //        config.appId = 176l
+
+        expect:
+        def result = con.execExportRestClient(config, query)
+        if (result.exception) {
+            result.exception.printStackTrace()
+        }
+        result.success == true
+
+
+        where:
+        jobId | query
+        '20150515_123456' | 'レコード番号 = 1'
+    }
+
 }
