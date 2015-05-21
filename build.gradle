@@ -1,0 +1,53 @@
+apply plugin: 'groovy'
+apply plugin: 'application'
+apply plugin: 'eclipse'
+
+tasks.withType(GroovyCompile) each { it.groovyOptions.encoding = "UTF-8" }
+
+buildscript {
+  repositories {
+	mavenCentral()
+	jcenter()
+	maven {
+	  url 'http://dl.bintray.com/cjstehno/public'
+	}
+  }
+  dependencies {
+	classpath 'gradle-templates:gradle-templates:1.5'
+  }
+}
+
+apply plugin:'templates'
+
+
+repositories {
+  mavenCentral()
+  jcenter()
+  maven {
+    url  "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
+}
+
+dependencies {
+  compile 'org.codehaus.groovy:groovy-all:2.4.3'
+  compile 'com.google.code.gson:gson:2.3.1'
+  testCompile 'com.h2database:h2:1.4.187'
+  testCompile 'mysql:mysql-connector-java:5.1.35'
+  testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+  compile fileTree(dir: 'libs', include: '*.jar')
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+version = '0.1'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'kintone Connector for Talend core',
+                   'Implementation-Version': version
+    }
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
+}
