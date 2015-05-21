@@ -20,6 +20,7 @@ This is kintone and RDBMS data export/import component for Talend.
 
 * automatic schema creation 
 * export to temporary tabel(s)
+* GET single record by recordID
 * job status logging
 
 ### Configurations
@@ -28,15 +29,18 @@ This is kintone and RDBMS data export/import component for Talend.
 * JDBC connection URL
 * temporary table prefix
 * job status report table name
-* if you need save temporary tabels, you can configure it.
 
 ## Installation & Usage
 
-TODO.
+see [How to use tKintoneInput component](docs/howto-tKintoneInput.md)
 
 ## Author
 
 [Koichiro Nishijima](https://github.com/k-nishijima)
+
+## Contact
+
+[R3 institute](http://www.r3it.com/)
 
 ## License
 

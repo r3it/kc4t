@@ -1,0 +1,34 @@
+# editor cache
+*.swp
+*.orig
+
+# OS cache file
+.DS_Store
+Thumbs.db
+
+## Eclipse
+.settings/
+.classpath
+.project
+
+## gradle
+.gradle/
+build/
+
+# Excel temp file
+~$*
+
+# LibreOffice temp file
+.~lock.*#
+
+# emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+
+/bin/

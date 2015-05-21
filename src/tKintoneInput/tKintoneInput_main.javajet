@@ -1,0 +1,50 @@
+<%@ jet 
+	imports="
+    org.talend.core.model.metadata.IMetadataColumn
+    org.talend.core.model.metadata.IMetadataTable
+    org.talend.core.model.process.EConnectionType
+    org.talend.core.model.process.ElementParameterParser
+    org.talend.core.model.process.IConnection
+    org.talend.core.model.process.INode
+    org.talend.designer.codegen.config.CodeGeneratorArgument
+    java.util.List
+	" 
+%>
+<%
+CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+INode node = (INode)codeGenArgument.getArgument();
+String cid = node.getUniqueName();
+String query = ElementParameterParser.getValue(node, "__QUERY__");
+%>
+
+  com.r3it.kc4t.KintoneConnectorForTalend con_<%=cid %> = new com.r3it.kc4t.KintoneConnectorForTalend();
+<% if (query.length() > 0) { %>
+  com.r3it.kc4t.KintoneConnectorJobResult result_<%=cid %> = con_<%=cid %>.exportFromKintone(config_<%=cid %>, <%= query %>);
+<% } else { %>
+  com.r3it.kc4t.KintoneConnectorJobResult result_<%=cid %> = con_<%=cid %>.exportAllFromKintone(config_<%=cid %>);
+<% } %>
+
+<%
+List<IMetadataTable> metadatas = node.getMetadataList();
+if ((metadatas != null) && (metadatas.size() > 0)) 
+{//b
+ IMetadataTable metadata = metadatas.get(0);
+ if (metadata != null) 
+ {//a
+  List<IMetadataColumn> columns = metadata.getListColumns();	
+  List< ? extends IConnection> outConns = node.getOutgoingConnections();
+  for (IConnection conn : outConns) 
+  { //2	
+   if (conn.getLineStyle().equals(EConnectionType.FLOW_MAIN)||conn.getLineStyle().equals(EConnectionType.FLOW_MERGE))
+   { //3
+    String outputConnName = conn.getName();
+%>
+ <%= outputConnName %>.JOBID = result_<%=cid %>.getJobId();
+ <%= outputConnName %>.MAINTABLE = result_<%=cid %>.getMainTableName();
+ <%= outputConnName %>.SUBTABLES = result_<%=cid %>.getSubTableNames();
+<% 
+   }//3
+  }//2
+ }//a
+}//b
+%>
