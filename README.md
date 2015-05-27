@@ -34,6 +34,8 @@ This is kintone and RDBMS data export/import component for Talend.
 
 see [How to use tKintoneInput component](docs/howto-tKintoneInput.md)
 
+kc4t is using [Spock Framework](http://docs.spockframework.org/). see [How to run Unit test](docs/howto-runUnitTest.md)
+
 ## Author
 
 [Koichiro Nishijima](https://github.com/k-nishijima)

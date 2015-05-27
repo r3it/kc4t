@@ -4,6 +4,7 @@ import spock.lang.*
 
 class KintoneConnectorForTalendSpec extends Specification {
     def config = new KintoneConnectorConfig()
+    def credential = new ConfigSlurper().parse(new File('src/test/resources/kintoneCredential.groovy').toURL())
 
     def "createJobJd"() {
         setup:
@@ -29,8 +30,8 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.jobStatusReportTableName = 'report_'
         config.saveTmpTable = true
 
-        config.apiToken = 'xxxxx'
-        config.subDomain = 'xxxxx'
+        config.apiToken = credential.account1.apiToken
+        config.subDomain = credential.account1.subDomain
         config.appId = 15l
         config.useRevision = true
 
@@ -87,8 +88,8 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.jobStatusReportTableName = 'report_'
         config.saveTmpTable = true
 
-        config.apiToken = 'xxxxx'
-        config.subDomain = 'xxxxx'
+        config.apiToken = credential.account1.apiToken
+        config.subDomain = credential.account1.subDomain
         config.appId = 15l
 
         expect:
@@ -118,8 +119,8 @@ class KintoneConnectorForTalendSpec extends Specification {
         //        config.jobStatusReportTableName = 'kc4t_export_jobreport'
         //        config.saveTmpTable = true
         //
-        //        config.apiToken = 'xxxxx'
-        //        config.subDomain = 'xxxxx'
+        //        config.apiToken = credential.account1.apiToken
+        //        config.subDomain = credential.account1.subDomain
         //        config.appId = 15l
 
         // ゲストスペースの「案件」アプリ（3万件データが入ってるやつ）
@@ -128,8 +129,8 @@ class KintoneConnectorForTalendSpec extends Specification {
         //        config.saveTmpTable = true
         //        config.useRevision = false
         //
-        //        config.apiToken = 'xxxxx'
-        //        config.subDomain = 'xxxxx'
+        //        config.apiToken = credential.account1.apiToken
+        //        config.subDomain = credential.account1.subDomain
         //        config.appId = 139l
         //        config.guestSpaceId = 9l
         //        config.orderByField = "project_id"
@@ -139,8 +140,8 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.jobStatusReportTableName = 'sbtbl_test_jobreport'
         config.saveTmpTable = true
 
-        config.apiToken = 'xxxxx'
-        config.subDomain = 'xxxxx'
+        config.apiToken = credential.account2.apiToken
+        config.subDomain = credential.account2.subDomain
         config.appId = 176l
 
 
@@ -165,8 +166,8 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.jobStatusReportTableName = 'sbtbl_test_jobreport'
         config.saveTmpTable = true
 
-        config.apiToken = 'xxxxx'
-        config.subDomain = 'xxxxx'
+        config.apiToken = credential.account2.apiToken
+        config.subDomain = credential.account2.subDomain
         config.appId = 176l
 
 
@@ -195,11 +196,9 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.jobStatusReportTableName = 'dreport_'
         config.saveTmpTable = true
 
-        config.apiToken = 'xxxxx'
-        config.subDomain = 'xxxxx'
+        config.apiToken = credential.account1.apiToken
+        config.subDomain = credential.account1.subDomain
         config.appId = 15l
-        //        config.apiToken = 'xxxxx'
-        //        config.subDomain = 'xxxxx'
         //        config.appId = 176l
 
         expect:
