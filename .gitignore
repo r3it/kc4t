@@ -32,3 +32,6 @@ tramp
 .\#*
 
 /bin/
+
+kintoneCredential.groovy
+
