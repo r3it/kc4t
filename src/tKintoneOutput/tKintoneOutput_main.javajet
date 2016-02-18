@@ -5,6 +5,7 @@ imports="
        org.talend.core.model.metadata.types.JavaType
        org.talend.core.model.metadata.types.JavaTypesManager
        org.talend.core.model.process.EConnectionType
+       org.talend.core.model.process.ElementParameterParser
        org.talend.core.model.process.IConnection
        org.talend.core.model.process.INode
        org.talend.designer.codegen.config.CodeGeneratorArgument
@@ -12,20 +13,37 @@ imports="
        java.util.List;
 "
 %>
-    System.out.print("start main: ");
-
 <%
     CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
     INode node = (INode)codeGenArgument.getArgument();  
     String cid = node.getUniqueName();
-    
+    String apiToken = ElementParameterParser.getValue(node, "__APITOKEN__");
+    String subDomain = ElementParameterParser.getValue(node, "__SUBDOMAIN__");
+    long appId = Long.parseLong(ElementParameterParser.getValue(node, "__APPID__"));
+
+    String guestSpace = ElementParameterParser.getValue(node, "__GUEST_SPACEID__");
+    long guestSpaceId = 0;
+    if (guestSpace.length() > 0) {
+        guestSpaceId = Long.parseLong(guestSpace);
+    }
+    String keyFieldCode = ElementParameterParser.getValue(node, "__KEY_FIELDCODE__");
+%>
+
+    com.r3it.kc4t.KintoneConnectorConfig config_<%= cid %> = new com.r3it.kc4t.KintoneConnectorConfig();
+    config_<%=cid %>.setApiToken(<%= apiToken %>);
+    config_<%=cid %>.setSubDomain(<%= subDomain %>);
+    config_<%=cid %>.setAppId(<%= appId %>l);
+<% if (guestSpaceId > 0) { %>
+    config_<%=cid %>.setGuestSpaceId(<%= guestSpaceId %>);
+<% } %>
+    config_<%=cid %>.setKeyFieldCode(<%= keyFieldCode %>);
+
+<%
     List<IMetadataTable> metadatas = node.getMetadataList();
     if ((metadatas != null) && (metadatas.size() > 0)) {//b
         IMetadataTable metadata = metadatas.get(0);
         if (metadata != null) {//a  
-%>
 
-<%
 
     String incomingName = "";
         
@@ -43,10 +61,18 @@ imports="
 %>
 
 String[] row_<%=cid %>=new String[]{<%for(int j=0;j<columnSize;j++){%>"",<%}%>};
+//         Map<String, String> row = new HashMap<String, String>();
+System.out.println("len = "+ row_<%=cid %>.length);
+System.out.println("/columnSize = <%= columnSize %>");
+
 <%
 for (int i = 0; i < columnSize; i++) {
     IMetadataColumn column = columns.get(i);
     String label = column.getLabel();
+%>
+ System.out.print("label | <%= label %>");
+
+<%
     JavaType javaType = JavaTypesManager.getJavaTypeFromId(column.getTalendType());
     String pattern = column.getPattern() == null || column.getPattern().trim().length() == 0 ? null : column.getPattern();
     if(JavaTypesManager.isJavaPrimitiveType( column.getTalendType(), column.isNullable())){
@@ -93,12 +119,15 @@ for (int i = 0; i < columnSize; i++) {
 %>
     for (int j=0; j<row_<%=cid %>.length; j++) {
         System.out.print(row_<%=cid %>[j]);
-        System.out.print(" | ");
+        System.out.print(" || ");
     }
-
     System.out.println();
-    // globalBuffer.add(row_<%=cid %>);    
-    
+
+/*
+    com.r3it.kc4t.KintoneConnectorForTalend con_<%=cid %> = new com.r3it.kc4t.KintoneConnectorForTalend();
+    com.r3it.kc4t.KintoneConnectorJobResult result_<%=cid %> = con_<%=cid %>.upsert(config_<%=cid %>, row_<%=cid %>);
+*/
+
 <%
     }//b
  }//a   

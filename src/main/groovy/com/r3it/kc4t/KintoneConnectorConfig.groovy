@@ -16,4 +16,9 @@ class KintoneConnectorConfig {
     def Long guestSpaceId
     def orderByField = 'レコード番号'
     def useRevision = true
+
+    def keyFieldCode
+    def importDateFormat
+    def importTimeFormat
+    def importDateTimeFormat
 }
