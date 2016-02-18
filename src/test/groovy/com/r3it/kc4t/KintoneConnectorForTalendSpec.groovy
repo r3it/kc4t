@@ -223,7 +223,11 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.appId = 71l
 
         config.keyFieldCode = 'com_id'
-        def columns = [com_id: System.currentTimeMillis(), com_name: "株式会社123運輸" + new Date().toString()]
+        def columns = [
+            noExistField: 'foobar',
+            com_id: System.currentTimeMillis(),
+            com_name: "株式会社123運輸" + new Date().toString()
+        ]
 
         expect:
         // try insert
@@ -232,7 +236,7 @@ class KintoneConnectorForTalendSpec extends Specification {
         result.insertedId > 0
 
         // try update
-        def result2 = con.upsertKintone(config, [com_id: columns.com_id, com_name: '会社名が変わりました'])
+        def result2 = con.upsertKintone(config, [noExistField: 'foobar', com_id: columns.com_id, com_name: '会社名が変わりました'])
         result2.success == true
         result2.insertedId == 0
     }

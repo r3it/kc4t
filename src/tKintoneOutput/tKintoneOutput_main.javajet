@@ -9,7 +9,6 @@ imports="
        org.talend.core.model.process.IConnection
        org.talend.core.model.process.INode
        org.talend.designer.codegen.config.CodeGeneratorArgument
-
        java.util.List;
 "
 %>
@@ -60,24 +59,18 @@ imports="
     int columnSize = columns.size();
 %>
 
-String[] row_<%=cid %>=new String[]{<%for(int j=0;j<columnSize;j++){%>"",<%}%>};
-//         Map<String, String> row = new HashMap<String, String>();
-System.out.println("len = "+ row_<%=cid %>.length);
-System.out.println("/columnSize = <%= columnSize %>");
+java.util.Map<String, String> row_<%=cid %> = new java.util.HashMap<String, String>();
 
 <%
 for (int i = 0; i < columnSize; i++) {
     IMetadataColumn column = columns.get(i);
     String label = column.getLabel();
-%>
- System.out.print("label | <%= label %>");
 
-<%
     JavaType javaType = JavaTypesManager.getJavaTypeFromId(column.getTalendType());
     String pattern = column.getPattern() == null || column.getPattern().trim().length() == 0 ? null : column.getPattern();
     if(JavaTypesManager.isJavaPrimitiveType( column.getTalendType(), column.isNullable())){
         %>
-        row_<%=cid %>[<%=i %>] = String.valueOf(<%=incomingName %>.<%=label %>); 
+        row_<%=cid %>.put("<%= label %>", String.valueOf(<%=incomingName %>.<%=label %>)); 
         <%
     }else {
         %>
@@ -85,49 +78,46 @@ for (int i = 0; i < columnSize; i++) {
             <%                  
             if(javaType == JavaTypesManager.STRING ){
             %>
-                row_<%=cid %>[<%=i %>] = <%=incomingName %>.<%=label %>;
+                row_<%=cid %>.put("<%= label %>", <%=incomingName %>.<%=label %>);
             <%
             }else if(javaType == JavaTypesManager.DATE && pattern != null){
             %>
-                row_<%=cid %>[<%=i %>] = FormatterUtils.format_Date(<%=incomingName %>.<%=label %>, <%= pattern %>);
+                row_<%=cid %>.put("<%= label %>", FormatterUtils.format_Date(<%=incomingName %>.<%=label %>, <%= pattern %>));
             <%
             }else if(javaType == JavaTypesManager.BIGDECIMAL){
             %>
-                row_<%=cid %>[<%=i %>] = String.valueOf(<%=column.getPrecision() == null? incomingName + "." + column.getLabel() : incomingName + "." + column.getLabel() + ".setScale(" + column.getPrecision() + ", java.math.RoundingMode.HALF_UP)" %>);
+                row_<%=cid %>.put("<%= label %>", String.valueOf(<%=column.getPrecision() == null? incomingName + "." + column.getLabel() : incomingName + "." + column.getLabel() + ".setScale(" + column.getPrecision() + ", java.math.RoundingMode.HALF_UP)" %>));
             <%
             }else if(javaType == JavaTypesManager.BYTE_ARRAY){
             %>
-                row_<%=cid %>[<%=i %>] = java.nio.charset.Charset.defaultCharset().decode(java.nio.ByteBuffer.wrap(<%=incomingName %>.<%=label %>)).toString();
+                row_<%=cid %>.put("<%= label %>", java.nio.charset.Charset.defaultCharset().decode(java.nio.ByteBuffer.wrap(<%=incomingName %>.<%=label %>)).toString());
             <%
             }else if(javaType == JavaTypesManager.LIST){
             %>
-                row_<%=cid %>[<%=i %>] = ParserUtils.parseTo_String(<%=incomingName %>.<%=label %>,",");
+                row_<%=cid %>.put("<%= label %>", ParserUtils.parseTo_String(<%=incomingName %>.<%=label %>,","));
             <%
             }else{
             %>
-                row_<%=cid %>[<%=i %>] = String.valueOf(<%=incomingName %>.<%=label %>);
+                row_<%=cid %>.put("<%= label %>", String.valueOf(<%=incomingName %>.<%=label %>));
             <%
             }
             %>                              
         }else{
-            row_<%=cid %>[<%=i %>] = null;
+            row_<%=cid %>.put("<%= label %>", null);
         }
 <% 
     }
 }
 
 %>
-    for (int j=0; j<row_<%=cid %>.length; j++) {
-        System.out.print(row_<%=cid %>[j]);
-        System.out.print(" || ");
+    for(java.util.Map.Entry<String, String> e : row_<%=cid %>.entrySet()) {
+        System.out.print(e.getValue());
+        System.out.print(" | ");
     }
     System.out.println();
 
-/*
     com.r3it.kc4t.KintoneConnectorForTalend con_<%=cid %> = new com.r3it.kc4t.KintoneConnectorForTalend();
-    com.r3it.kc4t.KintoneConnectorJobResult result_<%=cid %> = con_<%=cid %>.upsert(config_<%=cid %>, row_<%=cid %>);
-*/
-
+    com.r3it.kc4t.KintoneConnectorJobResult result_<%=cid %> = con_<%=cid %>.upsertKintone(config_<%=cid %>, row_<%=cid %>);
 <%
     }//b
  }//a   

@@ -279,7 +279,6 @@ class KintoneConnectorForTalend {
         def result = new KintoneConnectorJobResult()
 
         def value = columns.get(config.keyFieldCode)
-        println (value)
         def query = """$config.keyFieldCode = "$value" """
         Connection db = null;
         try {
@@ -287,7 +286,6 @@ class KintoneConnectorForTalend {
             if (config.guestSpaceId > 0) {
                 db.setGuestSpaceId(config.guestSpaceId)
             }
-            println(query)
             ResultSet rs = db.select(config.appId, query, null);
             if (rs.next()) {
                 updateKintone(config, db, rs, columns)
@@ -339,57 +337,59 @@ class KintoneConnectorForTalend {
             if (rs == null) {
                 record.setString(k, strValue)
             } else {
-                FieldType fieldType = rs.getFieldType(k)
+                if (rs.getFieldNames().contains(k)) {
+                    FieldType fieldType = rs.getFieldType(k)
 
-                switch (fieldType) {
-                    case FieldType.SINGLE_LINE_TEXT:
-                    case FieldType.NUMBER:
-                    case FieldType.CALC:
-                    case FieldType.MULTI_LINE_TEXT:
-                    case FieldType.RICH_TEXT:
-                    case FieldType.CHECK_BOX:
-                    case FieldType.RADIO_BUTTON:
-                    case FieldType.DROP_DOWN:
-                    case FieldType.MULTI_SELECT:
-                    case FieldType.USER_SELECT:
-                    case FieldType.LINK:
-                    case FieldType.CATEGORY:
-                    case FieldType.STATUS:
-                    case FieldType.STATUS_ASSIGNEE:
-                        record.setString(k, strValue)
-                        break
+                    switch (fieldType) {
+                        case FieldType.SINGLE_LINE_TEXT:
+                        case FieldType.NUMBER:
+                        case FieldType.CALC:
+                        case FieldType.MULTI_LINE_TEXT:
+                        case FieldType.RICH_TEXT:
+                        case FieldType.CHECK_BOX:
+                        case FieldType.RADIO_BUTTON:
+                        case FieldType.DROP_DOWN:
+                        case FieldType.MULTI_SELECT:
+                        case FieldType.USER_SELECT:
+                        case FieldType.LINK:
+                        case FieldType.CATEGORY:
+                        case FieldType.STATUS:
+                        case FieldType.STATUS_ASSIGNEE:
+                            record.setString(k, strValue)
+                            break
 
-                    case FieldType.FILE:
-                    case FieldType.SUBTABLE:
-                    // TODO not support
-                        break
+                        case FieldType.FILE:
+                        case FieldType.SUBTABLE:
+                        // TODO not support
+                            break
 
-                    case FieldType.DATE:
-                        record.setDate(k, dateFormat.parse(strValue))
-                        break
-                    case FieldType.TIME:
-                    // FIXME
-                        record.setString(k, strValue)
-                        break
-                    case FieldType.DATETIME:
-                        record.setDateTime(k, dateTimeFormat.parse(strValue))
-                        break
+                        case FieldType.DATE:
+                            record.setDate(k, dateFormat.parse(strValue))
+                            break
+                        case FieldType.TIME:
+                        // FIXME
+                            record.setString(k, strValue)
+                            break
+                        case FieldType.DATETIME:
+                            record.setDateTime(k, dateTimeFormat.parse(strValue))
+                            break
 
-                    case FieldType.CREATOR:
-                    case FieldType.MODIFIER:
-                    case FieldType.CREATED_TIME:
-                    case FieldType.UPDATED_TIME:
-                    // TODO if insert mode, i can set values
-                        break
+                        case FieldType.CREATOR:
+                        case FieldType.MODIFIER:
+                        case FieldType.CREATED_TIME:
+                        case FieldType.UPDATED_TIME:
+                        // TODO if insert mode, i can set values
+                            break
 
-                    case FieldType.RECORD_NUMBER:
-                    case FieldType.__REVISION__:
-                    case FieldType.__ID__:
-                    // not writable
-                        break
+                        case FieldType.RECORD_NUMBER:
+                        case FieldType.__REVISION__:
+                        case FieldType.__ID__:
+                        // not writable
+                            break
 
-                    default:
-                        break
+                        default:
+                            break
+                    }
                 }
             }
 
