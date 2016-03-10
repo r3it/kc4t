@@ -18,7 +18,11 @@ imports="
     String cid = node.getUniqueName();
     String apiToken = ElementParameterParser.getValue(node, "__APITOKEN__");
     String subDomain = ElementParameterParser.getValue(node, "__SUBDOMAIN__");
-    long appId = Long.parseLong(ElementParameterParser.getValue(node, "__APPID__"));
+    String appIdStr = ElementParameterParser.getValue(node, "__APPID__");
+    long appId = 0;
+    if (appIdStr.length() > 0) {
+        appId = Long.parseLong(appIdStr);
+    }
 
     String guestSpace = ElementParameterParser.getValue(node, "__GUEST_SPACEID__");
     long guestSpaceId = 0;
