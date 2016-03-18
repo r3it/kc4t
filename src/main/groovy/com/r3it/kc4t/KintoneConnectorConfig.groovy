@@ -30,7 +30,7 @@ class KintoneConnectorConfig {
     def useRevision = true
 
     def keyFieldCode
-    def importDateFormat
-    def importTimeFormat
-    def importDateTimeFormat
+    def importDateFormat = "yyyy-MM-dd"
+    def importTimeFormat = "HH:mm:ss"
+    def importDateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 }

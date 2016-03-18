@@ -323,13 +323,13 @@ class KintoneConnectorForTalend {
     def refillToRecord(insert = true, KintoneConnectorConfig config, ResultSet rs, Record record, Map<String, String> columns) {
         def dateFormat, timeFormat, dateTimeFormat
         if (config.getImportDateFormat()) {
-            dateFormat = new SimpleDateFormat(config.getImportDateFormat());
+            dateFormat = new SimpleDateFormat(config.getImportDateFormat(), Locale.ENGLISH);
         }
         if (config.getImportTimeFormat()) {
-            timeFormat = new SimpleDateFormat(config.getImportTimeFormat());
+            timeFormat = new SimpleDateFormat(config.getImportTimeFormat(), Locale.ENGLISH);
         }
         if (config.getImportDateTimeFormat()) {
-            dateTimeFormat = new SimpleDateFormat(config.getImportDateTimeFormat());
+            dateTimeFormat = new SimpleDateFormat(config.getImportDateTimeFormat(), Locale.ENGLISH);
         }
 
         columns.each { k, v ->

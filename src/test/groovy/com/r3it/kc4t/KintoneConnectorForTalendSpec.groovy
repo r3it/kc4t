@@ -220,7 +220,7 @@ class KintoneConnectorForTalendSpec extends Specification {
         def con = new KintoneConnectorForTalend()
         config.apiToken = credential.account3.apiToken
         config.subDomain = credential.account3.subDomain
-        config.appId = 71l
+        config.appId = "71"
 
         config.keyFieldCode = 'com_id'
         def columns = [
@@ -241,4 +241,32 @@ class KintoneConnectorForTalendSpec extends Specification {
         result2.insertedId == 0
     }
 
+    def "insertDateFormat"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.apiToken = credential.account3.apiToken
+        config.subDomain = credential.account3.subDomain
+        config.appId = "71"
+
+        config.keyFieldCode = 'com_id'
+        def columns = [
+            com_id: System.currentTimeMillis(),
+            com_name: "株式会社123運輸" + new Date().toString(),
+            date: "2016-02-29",
+            time: "14:55:11",
+            datetime: "2016-03-01T12:13:14Z"
+        ]
+
+        expect:
+        // try insert
+        def result = con.upsertKintone(config, columns)
+        result.success == true
+        result.insertedId > 0
+
+        // try update
+        def result2 = con.upsertKintone(config, [
+            com_id: columns.com_id, date: '2016-03-02', time: "12:12:12", datetime: '2016-03-02T12:12:12Z'])
+        result2.success == true
+        result2.insertedId == 0
+    }
 }
