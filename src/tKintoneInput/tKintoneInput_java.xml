@@ -109,7 +109,7 @@
   <ADVANCED_PARAMETERS />
   <CODEGENERATION>
       <IMPORTS>
-          <IMPORT NAME="kc4t-0.1" MODULE="kc4t-0.1.jar" REQUIRED="true" />
+          <IMPORT NAME="kc4t-0.2" MODULE="kc4t-0.2.jar" REQUIRED="true" />
       </IMPORTS>
   </CODEGENERATION>
    <RETURNS />

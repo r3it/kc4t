@@ -214,4 +214,31 @@ class KintoneConnectorForTalendSpec extends Specification {
         '20150515_123456' | 'レコード番号 = 1'
     }
 
+
+    def "insertAndUpdate"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.apiToken = credential.account3.apiToken
+        config.subDomain = credential.account3.subDomain
+        config.appId = 71l
+
+        config.keyFieldCode = 'com_id'
+        def columns = [
+            noExistField: 'foobar',
+            com_id: System.currentTimeMillis(),
+            com_name: "株式会社123運輸" + new Date().toString()
+        ]
+
+        expect:
+        // try insert
+        def result = con.upsertKintone(config, columns)
+        result.success == true
+        result.insertedId > 0
+
+        // try update
+        def result2 = con.upsertKintone(config, [noExistField: 'foobar', com_id: columns.com_id, com_name: '会社名が変わりました'])
+        result2.success == true
+        result2.insertedId == 0
+    }
+
 }

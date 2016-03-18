@@ -20,4 +20,6 @@ class KintoneConnectorJobResult {
 
     def String mainTableName
     def String subTableNames
+
+    def insertedId = 0
 }

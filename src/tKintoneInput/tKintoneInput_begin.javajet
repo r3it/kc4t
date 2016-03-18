@@ -25,20 +25,11 @@ String jobStatusReportTableName = ElementParameterParser.getValue(node, "__REPOR
 
 String apiToken = ElementParameterParser.getValue(node, "__APITOKEN__");
 String subDomain = ElementParameterParser.getValue(node, "__SUBDOMAIN__");
-long appId = Long.parseLong(ElementParameterParser.getValue(node, "__APPID__"));
-
-String guestSpace = ElementParameterParser.getValue(node, "__GUEST_SPACEID__");
-long guestSpaceId = 0;
-if (guestSpace.length() > 0) {
-    guestSpaceId = Long.parseLong(guestSpace);
-}
+String appId = ElementParameterParser.getValue(node, "__APPID__");
+String guestSpaceId = ElementParameterParser.getValue(node, "__GUEST_SPACEID__");
 
 String orderByField = ElementParameterParser.getValue(node, "__ORDER_BY_FIELD__");
-boolean useRevision = true;
-String useRevisionFlag = ElementParameterParser.getValue(node, "__USE_REVISION__");
-if ("false".equals(useRevisionFlag)) {
-    useRevision = false;
-}
+boolean useRevision = ("true").equals(ElementParameterParser.getValue(node,"__USE_REVISION__"));
 
 %> 
   com.r3it.kc4t.KintoneConnectorConfig config_<%=cid %> = new com.r3it.kc4t.KintoneConnectorConfig();
@@ -51,12 +42,12 @@ if ("false".equals(useRevisionFlag)) {
   config_<%=cid %>.setJobStatusReportTableName(<%= jobStatusReportTableName %>);
   config_<%=cid %>.setApiToken(<%= apiToken %>);
   config_<%=cid %>.setSubDomain(<%= subDomain %>);
-  config_<%=cid %>.setAppId(<%= appId %>l);
+  config_<%=cid %>.setAppId(<%= appId %>);
   
-<% if (guestSpaceId > 0) { %>
+<% if (guestSpaceId != null && guestSpaceId.trim().length() > 0) { %>
   config_<%=cid %>.setGuestSpaceId(<%= guestSpaceId %>);
 <% } %>
-<% if (orderByField.length() > 2) { %>
+<% if (orderByField != null && orderByField.length() > 2) { %>
   config_<%=cid %>.setOrderByField(<%= orderByField %>);
 <% } %>
   config_<%=cid %>.setUseRevision(<%= useRevision %>);

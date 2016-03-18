@@ -1,0 +1,119 @@
+<%@ jet
+imports="
+       org.talend.core.model.metadata.IMetadataColumn
+       org.talend.core.model.metadata.IMetadataTable
+       org.talend.core.model.metadata.types.JavaType
+       org.talend.core.model.metadata.types.JavaTypesManager
+       org.talend.core.model.process.EConnectionType
+       org.talend.core.model.process.ElementParameterParser
+       org.talend.core.model.process.IConnection
+       org.talend.core.model.process.INode
+       org.talend.designer.codegen.config.CodeGeneratorArgument
+       java.util.List;
+"
+%>
+<%
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();  
+    String cid = node.getUniqueName();
+    String apiToken = ElementParameterParser.getValue(node, "__APITOKEN__");
+    String subDomain = ElementParameterParser.getValue(node, "__SUBDOMAIN__");
+    String appId = ElementParameterParser.getValue(node, "__APPID__");
+    String guestSpaceId = ElementParameterParser.getValue(node, "__GUEST_SPACEID__");
+    String keyFieldCode = ElementParameterParser.getValue(node, "__KEY_FIELDCODE__");
+%>
+
+    com.r3it.kc4t.KintoneConnectorConfig config_<%= cid %> = new com.r3it.kc4t.KintoneConnectorConfig();
+    config_<%=cid %>.setApiToken(<%= apiToken %>);
+    config_<%=cid %>.setSubDomain(<%= subDomain %>);
+    config_<%=cid %>.setAppId(<%= appId %>);
+<% if (guestSpaceId != null && guestSpaceId.trim().length() > 0) { %>
+    config_<%=cid %>.setGuestSpaceId(<%= guestSpaceId %>);
+<% } %>
+    config_<%=cid %>.setKeyFieldCode(<%= keyFieldCode %>);
+
+<%
+    List<IMetadataTable> metadatas = node.getMetadataList();
+    if ((metadatas != null) && (metadatas.size() > 0)) {//b
+        IMetadataTable metadata = metadatas.get(0);
+        if (metadata != null) {//a  
+
+
+    String incomingName = "";
+        
+    List<? extends IConnection> inputConns = node.getIncomingConnections(EConnectionType.FLOW_MAIN);
+    if ((inputConns!=null)&&(inputConns.size()>0)) {
+        IConnection incomingConn = inputConns.get(0); 
+        incomingName = incomingConn.getName();
+
+    }else{
+        return "";
+    }
+    
+    List<IMetadataColumn> columns = metadata.getListColumns();
+    int columnSize = columns.size();
+%>
+
+java.util.Map<String, String> row_<%=cid %> = new java.util.HashMap<String, String>();
+
+<%
+for (int i = 0; i < columnSize; i++) {
+    IMetadataColumn column = columns.get(i);
+    String label = column.getLabel();
+
+    JavaType javaType = JavaTypesManager.getJavaTypeFromId(column.getTalendType());
+    String pattern = column.getPattern() == null || column.getPattern().trim().length() == 0 ? null : column.getPattern();
+    if(JavaTypesManager.isJavaPrimitiveType( column.getTalendType(), column.isNullable())){
+        %>
+        row_<%=cid %>.put("<%= label %>", String.valueOf(<%=incomingName %>.<%=label %>)); 
+        <%
+    }else {
+        %>
+        if(<%=incomingName %>.<%=label %> != null){
+            <%                  
+            if(javaType == JavaTypesManager.STRING ){
+            %>
+                row_<%=cid %>.put("<%= label %>", <%=incomingName %>.<%=label %>);
+            <%
+            }else if(javaType == JavaTypesManager.DATE && pattern != null){
+            %>
+                row_<%=cid %>.put("<%= label %>", FormatterUtils.format_Date(<%=incomingName %>.<%=label %>, <%= pattern %>));
+            <%
+            }else if(javaType == JavaTypesManager.BIGDECIMAL){
+            %>
+                row_<%=cid %>.put("<%= label %>", String.valueOf(<%=column.getPrecision() == null? incomingName + "." + column.getLabel() : incomingName + "." + column.getLabel() + ".setScale(" + column.getPrecision() + ", java.math.RoundingMode.HALF_UP)" %>));
+            <%
+            }else if(javaType == JavaTypesManager.BYTE_ARRAY){
+            %>
+                row_<%=cid %>.put("<%= label %>", java.nio.charset.Charset.defaultCharset().decode(java.nio.ByteBuffer.wrap(<%=incomingName %>.<%=label %>)).toString());
+            <%
+            }else if(javaType == JavaTypesManager.LIST){
+            %>
+                row_<%=cid %>.put("<%= label %>", ParserUtils.parseTo_String(<%=incomingName %>.<%=label %>,","));
+            <%
+            }else{
+            %>
+                row_<%=cid %>.put("<%= label %>", String.valueOf(<%=incomingName %>.<%=label %>));
+            <%
+            }
+            %>                              
+        }else{
+            row_<%=cid %>.put("<%= label %>", null);
+        }
+<% 
+    }
+}
+
+%>
+    for(java.util.Map.Entry<String, String> e : row_<%=cid %>.entrySet()) {
+        System.out.print(e.getValue());
+        System.out.print(" | ");
+    }
+    System.out.println();
+
+    com.r3it.kc4t.KintoneConnectorForTalend con_<%=cid %> = new com.r3it.kc4t.KintoneConnectorForTalend();
+    com.r3it.kc4t.KintoneConnectorJobResult result_<%=cid %> = con_<%=cid %>.upsertKintone(config_<%=cid %>, row_<%=cid %>);
+<%
+    }//b
+ }//a   
+%>
