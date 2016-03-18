@@ -4,10 +4,14 @@
 
 This is kintone and RDBMS data export/import component for Talend.
 
+日本語ドキュメントは弊社Webサイトをご確認ください。
+
+[https://www.r3it.com/community/oss/kc4t/](https://www.r3it.com/community/oss/kc4t/)
+
 ## kc4t features
 
-* Records export from kintone to RDB(JDBC)
-* Records sync from RDB to kintone(coming soon)
+* tKintoneInput / Records export from kintone to RDB(JDBC)
+* tKintoneOutput / Records export from RDB to kintone
 
 ## Requirement
 
@@ -32,7 +36,7 @@ This is kintone and RDBMS data export/import component for Talend.
 
 ## Installation & Usage
 
-see [How to use tKintoneInput component](docs/howto-tKintoneInput.md)
+see [How to use tKintoneInput component](docs/howto-tKintoneInput.md) and [tKintoneOutput component](docs/howto-tKintoneOutput.md).
 
 kc4t is using [Spock Framework](http://docs.spockframework.org/). see [How to run Unit test](docs/howto-runUnitTest.md)
 
