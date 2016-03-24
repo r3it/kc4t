@@ -275,7 +275,7 @@ class KintoneConnectorForTalend {
 
     }
 
-    def KintoneConnectorJobResult upsertKintone(KintoneConnectorConfig config, Map<String, String> columns) {
+    def KintoneConnectorJobResult upsertKintone(KintoneConnectorConfig config, Map<String, Object> columns) {
         def result = new KintoneConnectorJobResult()
 
         def value = columns.get(config.keyFieldCode)
@@ -307,20 +307,28 @@ class KintoneConnectorForTalend {
         return result
     }
 
-    def updateKintone(KintoneConnectorConfig config, Connection db, ResultSet rs, Map<String, String> columns) {
+    def updateKintone(KintoneConnectorConfig config, Connection db, ResultSet rs, Map<String, Object> columns) {
         def record = new Record(rs.getId())
         refillToRecord(false, config, rs, record, columns);
         record.setRevision(-1)
         db.update(config.getAppId(), rs.getId(), record)
     }
 
-    def insertKintone(KintoneConnectorConfig config, Connection db, ResultSet rs, Map<String, String> columns) {
+    def insertKintone(KintoneConnectorConfig config, Connection db, ResultSet rs, Map<String, Object> columns) {
         def record = new Record()
         refillToRecord(false, config, null, record, columns);
         return db.insert(config.getAppId(), record)
     }
 
-    def refillToRecord(insert = true, KintoneConnectorConfig config, ResultSet rs, Record record, Map<String, String> columns) {
+    def createUserCodes(List<KintoneUser> users) {
+        def codes = new ArrayList<String>()
+        users.each {
+            codes.add(it.code)
+        }
+        return codes
+    }
+
+    def refillToRecord(insert = true, KintoneConnectorConfig config, ResultSet rs, Record record, Map<String, Object> columns) {
         def dateFormat, timeFormat, dateTimeFormat
         if (config.getImportDateFormat()) {
             dateFormat = new SimpleDateFormat(config.getImportDateFormat(), Locale.ENGLISH);
@@ -335,7 +343,15 @@ class KintoneConnectorForTalend {
         columns.each { k, v ->
             def strValue = v.toString()
             if (rs == null) {
-                record.setString(k, strValue)
+                if (v instanceof List<KintoneUser>) {
+                    record.setUsers(k, createUserCodes(v))
+                } else if (v instanceof List<String>) {
+                    record.setStrings(k, v)
+                } else if (v instanceof KintoneUser) {
+                    record.setUser(k, v.code)
+                } else {
+                    record.setString(k, strValue)
+                }
             } else {
                 if (rs.getFieldNames().contains(k)) {
                     FieldType fieldType = rs.getFieldType(k)
@@ -346,16 +362,30 @@ class KintoneConnectorForTalend {
                         case FieldType.CALC:
                         case FieldType.MULTI_LINE_TEXT:
                         case FieldType.RICH_TEXT:
-                        case FieldType.CHECK_BOX:
                         case FieldType.RADIO_BUTTON:
                         case FieldType.DROP_DOWN:
-                        case FieldType.MULTI_SELECT:
-                        case FieldType.USER_SELECT:
                         case FieldType.LINK:
                         case FieldType.CATEGORY:
                         case FieldType.STATUS:
                         case FieldType.STATUS_ASSIGNEE:
                             record.setString(k, strValue)
+                            break
+
+                        case FieldType.CHECK_BOX:
+                        case FieldType.MULTI_SELECT:
+                            if (v instanceof List<String>) {
+                                record.setStrings(k, v)
+                            } else {
+                                record.setString(k, strValue)
+                            }
+                            break
+
+                        case FieldType.USER_SELECT:
+                            if (v instanceof List<KintoneUser>) {
+                                record.setUsers(k, createUserCodes(v))
+                            } else if (v instanceof KintoneUser) {
+                                record.setUser(k, v.code)
+                            }
                             break
 
                         case FieldType.FILE:

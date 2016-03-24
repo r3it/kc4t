@@ -54,7 +54,7 @@ imports="
     int columnSize = columns.size();
 %>
 
-java.util.Map<String, String> row_<%=cid %> = new java.util.HashMap<String, String>();
+java.util.Map<String, Object> row_<%=cid %> = new java.util.HashMap<String, Object>();
 
 <%
 for (int i = 0; i < columnSize; i++) {
@@ -89,11 +89,15 @@ for (int i = 0; i < columnSize; i++) {
             <%
             }else if(javaType == JavaTypesManager.LIST){
             %>
-                row_<%=cid %>.put("<%= label %>", ParserUtils.parseTo_String(<%=incomingName %>.<%=label %>,","));
+                row_<%=cid %>.put("<%= label %>", <%=incomingName %>.<%=label %>);
             <%
             }else{
             %>
-                row_<%=cid %>.put("<%= label %>", String.valueOf(<%=incomingName %>.<%=label %>));
+                if (<%=incomingName %>.<%=label %> instanceof com.r3it.kc4t.KintoneUser) {
+                    row_<%=cid %>.put("<%= label %>", <%=incomingName %>.<%=label %>);
+                } else {
+                    row_<%=cid %>.put("<%= label %>", String.valueOf(<%=incomingName %>.<%=label %>));
+                }
             <%
             }
             %>                              
@@ -105,7 +109,7 @@ for (int i = 0; i < columnSize; i++) {
 }
 
 %>
-    for(java.util.Map.Entry<String, String> e : row_<%=cid %>.entrySet()) {
+    for(java.util.Map.Entry<String, Object> e : row_<%=cid %>.entrySet()) {
         System.out.print(e.getValue());
         System.out.print(" | ");
     }
