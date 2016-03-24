@@ -269,4 +269,65 @@ class KintoneConnectorForTalendSpec extends Specification {
         result2.success == true
         result2.insertedId == 0
     }
+
+    def "insertListValues"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.apiToken = credential.account4.apiToken
+        config.subDomain = credential.account4.subDomain
+        config.appId = "85"
+
+        config.keyFieldCode = 'id'
+        def columns = [
+            id: System.currentTimeMillis(),
+            creator: com.r3it.kc4t.KintoneUser.createUser("Administrator"),
+            user: com.r3it.kc4t.KintoneUser.createUserList("Administrator"),
+            list: java.util.Arrays.asList(["AA", "BB"] as String[])
+        ]
+
+        expect:
+        // try insert
+        def result = con.upsertKintone(config, columns)
+        result.success == true
+        result.insertedId > 0
+
+        // try update
+        def result2 = con.upsertKintone(config, [
+            id: columns.id,
+            user: com.r3it.kc4t.KintoneUser.createUser("taro"),
+            list: java.util.Arrays.asList(["DD"] as String[])
+        ])
+        result2.success == true
+        result2.insertedId == 0
+    }
+
+    def "insertCreator"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.apiToken = credential.account4.apiToken
+        config.subDomain = credential.account4.subDomain
+        config.appId = "85"
+
+        config.keyFieldCode = 'id'
+        def columns = [
+            id: System.currentTimeMillis(),
+            creator: com.r3it.kc4t.KintoneUser.createUser("taro"),
+            list: java.util.Arrays.asList(["AA", "BB", "CC"] as String[])
+        ]
+
+        expect:
+        // try insert
+        def result = con.upsertKintone(config, columns)
+        result.success == true
+        result.insertedId > 0
+
+        // try update
+        def result2 = con.upsertKintone(config, [
+            id: columns.id,
+            user: com.r3it.kc4t.KintoneUser.createUser("Administrator"),
+            list: java.util.Arrays.asList(["DD"] as String[])
+        ])
+        result2.success == true
+        result2.insertedId == 0
+    }
 }

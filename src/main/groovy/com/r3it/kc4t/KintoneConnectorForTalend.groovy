@@ -343,10 +343,14 @@ class KintoneConnectorForTalend {
         columns.each { k, v ->
             def strValue = v.toString()
             if (rs == null) {
-                if (v instanceof List<KintoneUser>) {
-                    record.setUsers(k, createUserCodes(v))
-                } else if (v instanceof List<String>) {
-                    record.setStrings(k, v)
+                if (v instanceof List) {
+                    if (!v.empty && v.get(0) instanceof KintoneUser) {
+                        record.setUsers(k, createUserCodes(v))
+                    } else if  (!v.empty && v.get(0) instanceof String) {
+                        record.setStrings(k, v)
+                    } else {
+                        record.setString(k, strValue)
+                    }
                 } else if (v instanceof KintoneUser) {
                     record.setUser(k, v.code)
                 } else {
@@ -384,7 +388,9 @@ class KintoneConnectorForTalend {
                             if (v instanceof List<KintoneUser>) {
                                 record.setUsers(k, createUserCodes(v))
                             } else if (v instanceof KintoneUser) {
-                                record.setUser(k, v.code)
+                                def tmpList = new ArrayList<KintoneUser>()
+                                tmpList.add(v)
+                                record.setUsers(k, createUserCodes(tmpList))
                             }
                             break
 
@@ -406,6 +412,13 @@ class KintoneConnectorForTalend {
 
                         case FieldType.CREATOR:
                         case FieldType.MODIFIER:
+                            if (v instanceof List<KintoneUser>) {
+                                record.setUser(k, v.get(0).code) // 先頭ユーザを採用する
+                            } else if (v instanceof KintoneUser) {
+                                record.setUser(k, v.code)
+                            }
+                            break
+
                         case FieldType.CREATED_TIME:
                         case FieldType.UPDATED_TIME:
                         // TODO if insert mode, i can set values
