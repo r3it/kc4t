@@ -341,8 +341,10 @@ class KintoneConnectorForTalendSpec extends Specification {
         config.keyFieldCode = 'id'
         def columns = [
             id: System.currentTimeMillis(),
-            user: null,
-            list: java.util.Arrays.asList(["AA", "BB"] as String[])
+            user: com.r3it.kc4t.KintoneUser.createUserList("taro"),
+            list: java.util.Arrays.asList(["AA", "BB"] as String[]),
+            str: 'string!',
+            num: '123'
         ]
 
         expect:
@@ -355,7 +357,42 @@ class KintoneConnectorForTalendSpec extends Specification {
         def result2 = con.upsertKintone(config, [
             id: columns.id,
             user: null,
-            list: java.util.Arrays.asList(["DD"] as String[])
+            list: null,
+            str: null,
+            num: null
+        ])
+        result2.success == true
+        result2.insertedId == 0
+    }
+
+    def "updateEmptyDateFormat"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.apiToken = credential.account4.apiToken
+        config.subDomain = credential.account4.subDomain
+        config.appId = "85"
+
+        config.keyFieldCode = 'id'
+        def columns = [
+            id: System.currentTimeMillis(),
+            string: "株式会社123運輸" + new Date().toString(),
+            date: "2016-02-29",
+            time: "14:55:11",
+            datetime: "2016-03-01T12:13:14Z"
+        ]
+
+        expect:
+        // try insert
+        def result = con.upsertKintone(config, columns)
+        result.success == true
+        result.insertedId > 0
+
+        // try update
+        def result2 = con.upsertKintone(config, [
+            id: columns.id,
+            date: null,
+            time: null,
+            datetime: null
         ])
         result2.success == true
         result2.insertedId == 0

@@ -351,9 +351,9 @@ class KintoneConnectorForTalend {
         }
 
         columns.each { k, v ->
-            if (v != null) {
-                def strValue = v.toString()
-                if (rs == null) {
+            def strValue = v.toString()
+            if (rs == null) {
+                if (v != null) {
                     if (v instanceof List) {
                         if (!v.empty && v.get(0) instanceof KintoneUser) {
                             record.setUsers(k, createUserCodes(v))
@@ -367,86 +367,104 @@ class KintoneConnectorForTalend {
                     } else {
                         record.setString(k, strValue)
                     }
-                } else {
-                    if (rs.getFieldNames().contains(k)) {
-                        FieldType fieldType = rs.getFieldType(k)
+                }
+            } else {
+                if (rs.getFieldNames().contains(k)) {
+                    FieldType fieldType = rs.getFieldType(k)
 
-                        switch (fieldType) {
-                            case FieldType.SINGLE_LINE_TEXT:
-                            case FieldType.NUMBER:
-                            case FieldType.CALC:
-                            case FieldType.MULTI_LINE_TEXT:
-                            case FieldType.RICH_TEXT:
-                            case FieldType.RADIO_BUTTON:
-                            case FieldType.DROP_DOWN:
-                            case FieldType.LINK:
-                            case FieldType.CATEGORY:
-                            case FieldType.STATUS:
-                            case FieldType.STATUS_ASSIGNEE:
+                    switch (fieldType) {
+                        case FieldType.SINGLE_LINE_TEXT:
+                        case FieldType.NUMBER:
+                        case FieldType.CALC:
+                        case FieldType.MULTI_LINE_TEXT:
+                        case FieldType.RICH_TEXT:
+                        case FieldType.RADIO_BUTTON:
+                        case FieldType.DROP_DOWN:
+                        case FieldType.LINK:
+                        case FieldType.CATEGORY:
+                        case FieldType.STATUS:
+                        case FieldType.STATUS_ASSIGNEE:
+                            if (v == null) {
+                                record.setString(k, null)
+                            } else {
                                 record.setString(k, strValue)
-                                break
+                            }
+                            break
 
-                            case FieldType.CHECK_BOX:
-                            case FieldType.MULTI_SELECT:
-                                if (v instanceof List<String>) {
-                                    record.setStrings(k, v)
-                                } else {
-                                    record.setString(k, strValue)
-                                }
-                                break
+                        case FieldType.CHECK_BOX:
+                        case FieldType.MULTI_SELECT:
+                            if (v instanceof List<String>) {
+                                record.setStrings(k, v)
+                            } else if (v == null) {
+                                record.setStrings(k, new ArrayList())
+                            } else {
+                                record.setString(k, strValue)
+                            }
+                            break
 
-                            case FieldType.USER_SELECT:
-                                if (v instanceof List<KintoneUser>) {
-                                    record.setUsers(k, createUserCodes(v))
-                                } else if (v instanceof KintoneUser) {
-                                    def tmpList = new ArrayList<KintoneUser>()
-                                    tmpList.add(v)
-                                    record.setUsers(k, createUserCodes(tmpList))
-                                }
-                                break
+                        case FieldType.USER_SELECT:
+                            if (v instanceof List<KintoneUser>) {
+                                record.setUsers(k, createUserCodes(v))
+                            } else if (v instanceof KintoneUser) {
+                                def tmpList = new ArrayList<KintoneUser>()
+                                tmpList.add(v)
+                                record.setUsers(k, createUserCodes(tmpList))
+                            } else if (v == null) {
+                                record.setUsers(k, new ArrayList())
+                            }
+                            break
 
-                            case FieldType.FILE:
-                            case FieldType.SUBTABLE:
-                            // TODO not support
-                                break
+                        case FieldType.FILE:
+                        case FieldType.SUBTABLE:
+                        // TODO not support
+                            break
 
-                            case FieldType.DATE:
+                        case FieldType.DATE:
+                            if (v != null) {
                                 record.setDate(k, dateFormat.parse(strValue))
-                                break
-                            case FieldType.TIME:
-                            // FIXME
+                            } else {
+                                record.setString(k, null)
+                            }
+                            break
+                        case FieldType.TIME:
+                            if (v != null) {
                                 record.setString(k, strValue)
-                                break
-                            case FieldType.DATETIME:
+                            } else {
+                                record.setString(k, null)
+                            }
+                            break
+                        case FieldType.DATETIME:
+                            if (v != null) {
                                 record.setDateTime(k, dateTimeFormat.parse(strValue))
-                                break
+                            } else {
+                                record.setString(k, null)
+                            }
+                            break
 
-                            case FieldType.CREATOR:
-                            case FieldType.MODIFIER:
-                                if (v instanceof List<KintoneUser>) {
-                                    record.setUser(k, v.get(0).code) // 先頭ユーザを採用する
-                                } else if (v instanceof KintoneUser) {
-                                    record.setUser(k, v.code)
-                                }
-                                break
+                        case FieldType.CREATOR:
+                        case FieldType.MODIFIER:
+                            if (v instanceof List<KintoneUser>) {
+                                record.setUser(k, v.get(0).code) // 先頭ユーザを採用する
+                            } else if (v instanceof KintoneUser) {
+                                record.setUser(k, v.code)
+                            }
+                            break
 
-                            case FieldType.CREATED_TIME:
-                            case FieldType.UPDATED_TIME:
-                            // TODO if insert mode, i can set values
-                                break
+                        case FieldType.CREATED_TIME:
+                        case FieldType.UPDATED_TIME:
+                        // TODO if insert mode, i can set values
+                            break
 
-                            case FieldType.RECORD_NUMBER:
-                            case FieldType.__REVISION__:
-                            case FieldType.__ID__:
-                            // not writable
-                                break
+                        case FieldType.RECORD_NUMBER:
+                        case FieldType.__REVISION__:
+                        case FieldType.__ID__:
+                        // not writable
+                            break
 
-                            default:
-                                break
-                        }
+                        default:
+                            break
                     }
                 }
-
             }
 
         }
