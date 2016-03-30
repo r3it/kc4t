@@ -331,6 +331,36 @@ class KintoneConnectorForTalendSpec extends Specification {
         result2.insertedId == 0
     }
 
+    def "insertEmptyUser"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.apiToken = credential.account4.apiToken
+        config.subDomain = credential.account4.subDomain
+        config.appId = "85"
+
+        config.keyFieldCode = 'id'
+        def columns = [
+            id: System.currentTimeMillis(),
+            user: null,
+            list: java.util.Arrays.asList(["AA", "BB"] as String[])
+        ]
+
+        expect:
+        // try insert
+        def result = con.upsertKintone(config, columns)
+        result.success == true
+        result.insertedId > 0
+
+        // try update
+        def result2 = con.upsertKintone(config, [
+            id: columns.id,
+            user: null,
+            list: java.util.Arrays.asList(["DD"] as String[])
+        ])
+        result2.success == true
+        result2.insertedId == 0
+    }
+
     def "insertAndUpdateWithPasswordAuth"() {
         setup:
         def con = new KintoneConnectorForTalend()
