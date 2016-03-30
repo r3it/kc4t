@@ -79,6 +79,10 @@ for (int i = 0; i < columnSize; i++) {
             %>
                 row_<%=cid %>.put("<%= label %>", FormatterUtils.format_Date(<%=incomingName %>.<%=label %>, <%= pattern %>));
             <%
+            }else if(javaType == JavaTypesManager.INTEGER){
+            %>
+                row_<%=cid %>.put("<%= label %>", <%=incomingName %>.<%=label %>);
+            <%
             }else if(javaType == JavaTypesManager.BIGDECIMAL){
             %>
                 row_<%=cid %>.put("<%= label %>", String.valueOf(<%=column.getPrecision() == null? incomingName + "." + column.getLabel() : incomingName + "." + column.getLabel() + ".setScale(" + column.getPrecision() + ", java.math.RoundingMode.HALF_UP)" %>));
