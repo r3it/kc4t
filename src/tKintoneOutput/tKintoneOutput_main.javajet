@@ -17,6 +17,8 @@ imports="
     INode node = (INode)codeGenArgument.getArgument();  
     String cid = node.getUniqueName();
     String apiToken = ElementParameterParser.getValue(node, "__APITOKEN__");
+    String userName = ElementParameterParser.getValue(node, "__USERNAME__");
+    String password = ElementParameterParser.getValue(node, "__PASSWORD__");
     String subDomain = ElementParameterParser.getValue(node, "__SUBDOMAIN__");
     String appId = ElementParameterParser.getValue(node, "__APPID__");
     String guestSpaceId = ElementParameterParser.getValue(node, "__GUEST_SPACEID__");
@@ -24,7 +26,15 @@ imports="
 %>
 
     com.r3it.kc4t.KintoneConnectorConfig config_<%= cid %> = new com.r3it.kc4t.KintoneConnectorConfig();
+<% if (apiToken != null && apiToken.trim().length() > 0) { %>
     config_<%=cid %>.setApiToken(<%= apiToken %>);
+<% } %>
+<% if (userName != null && userName.trim().length() > 0) { %>
+    config_<%=cid %>.setUserName(<%= userName %>);
+<% } %>
+<% if (password != null && password.trim().length() > 0) { %>
+    config_<%=cid %>.setPassword(<%= password %>);
+<% } %>
     config_<%=cid %>.setSubDomain(<%= subDomain %>);
     config_<%=cid %>.setAppId(<%= appId %>);
 <% if (guestSpaceId != null && guestSpaceId.trim().length() > 0) { %>
