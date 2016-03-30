@@ -29,6 +29,16 @@ class KintoneConnectorForTalend {
         return dateTime.format("yyyyMMddHHmmss")
     }
 
+    def createConnection(KintoneConnectorConfig config) {
+        Connection db = null
+        if (config.apiToken) {
+            db = new Connection(config.subDomain, config.apiToken)
+        } else {
+            db = new Connection(config.subDomain, config.userName, config.password)
+        }
+        return db
+    }
+
     def KintoneConnectorJobResult exportFromKintone(KintoneConnectorConfig config, query) {
         def startTime = new Date()
         def result = execExportRestClient(config, query)
@@ -100,7 +110,7 @@ class KintoneConnectorForTalend {
         def count = 0
         Connection db = null;
         try {
-            db = new Connection(config.subDomain, config.apiToken);
+            db = createConnection(config);
             if (config.guestSpaceId > 0) {
                 db.setGuestSpaceId(config.guestSpaceId)
             }
@@ -282,7 +292,7 @@ class KintoneConnectorForTalend {
         def query = """$config.keyFieldCode = "$value" """
         Connection db = null;
         try {
-            db = new Connection(config.subDomain, config.apiToken);
+            db = createConnection(config);
             if (config.guestSpaceId > 0) {
                 db.setGuestSpaceId(config.guestSpaceId)
             }

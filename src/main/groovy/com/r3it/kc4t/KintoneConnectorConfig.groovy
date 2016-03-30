@@ -11,6 +11,9 @@ class KintoneConnectorConfig {
     def saveTmpTable = true
 
     def apiToken
+    def userName
+    def password
+
     def subDomain
     def appId
     def Long getAppId() {

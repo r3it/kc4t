@@ -330,4 +330,32 @@ class KintoneConnectorForTalendSpec extends Specification {
         result2.success == true
         result2.insertedId == 0
     }
+
+    def "insertAndUpdateWithPasswordAuth"() {
+        setup:
+        def con = new KintoneConnectorForTalend()
+        config.subDomain = credential.account5.subDomain
+        config.userName = credential.account5.userName
+        config.password = credential.account5.password
+        config.appId = "71"
+
+        config.keyFieldCode = 'com_id'
+        def columns = [
+            noExistField: 'foobar',
+            com_id: System.currentTimeMillis(),
+            com_name: "株式会社123運輸" + new Date().toString()
+        ]
+
+        expect:
+        // try insert
+        def result = con.upsertKintone(config, columns)
+        result.success == true
+        result.insertedId > 0
+
+        // try update
+        def result2 = con.upsertKintone(config, [noExistField: 'foobar', com_id: columns.com_id, com_name: 'パスワード認証で書き換えました'])
+        result2.success == true
+        result2.insertedId == 0
+    }
+
 }
